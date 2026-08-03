@@ -10,12 +10,12 @@ extern char **_hxcpp_argv;
 #include <malloc.h>
 #include <sys/socket.h>
 
-#define return \
-	socExit(); \
-	free(SOC_buffer); \
-	return
+extern "C" {
+	void __hxcpp_exit(int status) {
+		std::exit(status);
+	}
+}
 
-// figured it out myself :)
 void HAXE3DS_CTRUException(ERRF_ExceptionInfo* excep, CpuRegisters* regs) {
 	consoleInit(GFX_BOTTOM, NULL);
 	consoleClear();
@@ -47,10 +47,10 @@ void HAXE3DS_CTRUException(ERRF_ExceptionInfo* excep, CpuRegisters* regs) {
 		fprintf(f, "R%02d: 0x%08lX\n", i, regs->r[i]);
 	}
 
-	fprintf(f, "\n   SP: 0x%08lX     LR:   0x%08lX\n", regs->sp, regs->lr);
-	fprintf(f, "   PC: 0x%08lX   CPSR:   0x%08lX\n", regs->pc, regs->cpsr);
-	fprintf(f, "  FSR: 0x%08lX    FAR:   0x%08lX\n", excep->fsr, excep->far);
-	fprintf(f, "FPEXC: 0x%08lX   FPI1:   0x%08lX\n", excep->fpexc, excep->fpinst);
+	fprintf(f, "\n   SP: 0x%08lX      LR:   0x%08lX\n", regs->sp, regs->lr);
+	fprintf(f, "   PC: 0x%08lX    CPSR:   0x%08lX\n", regs->pc, regs->cpsr);
+	fprintf(f, "  FSR: 0x%08lX     FAR:   0x%08lX\n", excep->fsr, excep->far);
+	fprintf(f, "FPEXC: 0x%08lX    FPI1:   0x%08lX\n", excep->fpexc, excep->fpinst);
 	fprintf(f, " FPI2: 0x%08lX", excep->fpinst2);
 
 	fprintf(f, "\n\nhaxelib run haxe3ds -e 0x%lX 0x%lX\nUse the command above to locate which line throws exception from.", regs->pc, regs->lr);
@@ -71,6 +71,8 @@ extern "C" EXPORT_EXTRA int main() {
 	int sock = link3dsStdio();
 #endif
 
+	int exitCode = EXIT_SUCCESS;
+
 	try {
 		__boot_all();
 		__hxcpp_main();
@@ -87,8 +89,14 @@ extern "C" EXPORT_EXTRA int main() {
 		while (hidScanInput(), !(hidKeysDown() & KEY_START) && aptMainLoop());
 #endif
 
-		return EXIT_FAILURE;
+		exitCode = EXIT_FAILURE;
 	}
 
-	return EXIT_SUCCESS;
+#ifdef HAXE3DS_LINKTO3DS
+	if (sock > 0) closesocket(sock);
+#endif
+	socExit();
+	free(SOC_buffer);
+
+	return exitCode;
 }
