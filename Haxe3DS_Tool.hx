@@ -198,6 +198,7 @@ lime_use_old_deltatime=1
 
 		var make = CACIAAsStr(p);
 		var cmdToExecute = '${Sys.systemName() == "Windows" ? "" : "flatpak run org.azahar_emu.Azahar ./"}buildFiles/output.$make';
+		
 		function safeRunEmulator() {
 			if (Sys.systemName() == "Windows" || Sys.command("which flatpak > /dev/null 2>&1") == 0) {
 				execute(cmdToExecute);
@@ -205,6 +206,7 @@ lime_use_old_deltatime=1
 				trace("Flatpak/Emulator not available in this environment. Skipping auto-launch.");
 			}
 		}
+
 		if (validateIP()) {
 			if (make == "3dsx") {
 				if (!execute('${toDKPPath("[DKP_PATH]/tools/bin/3dslink")} -a $ip ${p.settings.linkOptions.link3dsToConsole ? "-s" : ""} buildFiles/output.3dsx') && p.settings.linkOptions.openEmuIfTransferFailed) {
@@ -216,18 +218,19 @@ lime_use_old_deltatime=1
 		} else {
 			safeRunEmulator();
 		}
+	} // <-- Properly closed fileHandler function here
 
 	static function main() {
 		haxe.Log.trace = (v, ?infos) -> Sys.println(v);
 
 		Sys.print('\x1b[33;1m
-██    ██   ██████   ██    ██  ████████   ██████   ███████    ██████
-██    ██  ██    ██  ██    ██  ██    ██  ██    ██  ██   ███  ██    ██
-██    ██  ██    ██   ██  ██   ██              ██  ██    ██  ██
-████████  ████████    ████    ██████      █████   ██    ██   ██████
-██    ██  ██    ██   ██  ██   ██              ██  ██    ██        ██
-██    ██  ██    ██  ██    ██  ██    ██  ██    ██  ██   ███  ██    ██
-██    ██  ██    ██  ██    ██  ████████   ██████   ███████    ██████\x1b[37;1m
+██   ██   ██████   ██   ██  ████████   ██████   ███████    ██████
+██   ██  ██    ██  ██   ██  ██    ██  ██    ██  ██   ███  ██    ██
+██   ██  ██    ██   ██ ██   ██          ██  ██   ██    ██  ██
+████████  ████████    ████    ██████     █████    ██    ██   ██████
+██   ██  ██    ██   ██ ██   ██              ██  ██    ██        ██
+██   ██  ██    ██  ██   ██  ██    ██  ██    ██  ██   ███  ██    ██
+██   ██  ██    ██  ██   ██  ████████   ██████   ███████    ██████\x1b[37;1m
 ============================ By Nael2xd ============================
 ');
 
@@ -419,7 +422,7 @@ lime_use_old_deltatime=1
 
 				sanityCheck("Updating haxe3ds toolchain for compiler use", () -> {
 					try {
-						var toolchainPath = '.haxelib/hxcpp/${File.getContent(".haxelib/hxcpp/.current")}/toolchain';
+						var toolchainPath = '.haxelib/hxcpp/${File.getContent(".hxcpp/.current")}/toolchain';
 						var xmlContent = File.getContent('$toolchainPath/haxe3ds-setup.xml');
 
 						for (key => flags in attributes.keyValueIterator()) {
@@ -435,9 +438,6 @@ lime_use_old_deltatime=1
 						final linuxpath = '$toolchainPath/linux-toolchain.xml';
 						if (xmlContent != toDKPPath(File.getContent(linuxpath))) {
 							File.saveContent(linuxpath, xmlContent);
-							//trace("doesn't match");
-						} else {
-							//trace("matches");
 						}
 
 						return true;
