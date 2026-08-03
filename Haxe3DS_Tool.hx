@@ -363,9 +363,9 @@ class Haxe3DS_Tool {
 						}
 
 						if (lib == "haxe3ds") {
-							var includePath = '$path/assets/include';
-							if (FileSystem.exists(includePath)) {
-								recursiveCopyFiles(includePath, "export/include");
+							var headerSrc = '$path/assets/include/haxe3ds_Utils.h';
+							if (FileSystem.exists(headerSrc)) {
+								File.saveBytes("source/haxe3ds_Utils.h", File.getBytes(headerSrc));
 							}
 						}
 
