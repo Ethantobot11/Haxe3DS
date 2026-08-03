@@ -48,8 +48,6 @@ class Haxe3DS_Tool {
 # defines
 {2}
 -D 
-lime_use_old_deltatime=1
--D 
 loop_unroll_max_cost=0
 -D 
 no_pch
@@ -320,6 +318,7 @@ message.reporting=pretty
 						'-I' + Sys.getCwd() + '/.haxelib/haxe3ds/git/assets/include',
 						'-L"[DKP_PATH]/portlibs/3ds/lib"',
 						'-I"[DKP_PATH]/portlibs/3ds/include"',
+						'-Dlime_use_old_deltatime=1',
 						'-lz'
 					]
 				];
