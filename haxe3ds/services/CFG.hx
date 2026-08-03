@@ -247,7 +247,7 @@ enum abstract CFGSoundOutput(UInt8) {
  * CFG (Configuration) Service, home to system languge and the checker for 2DS Models
  */
 @:cppFileCode('
-#include "haxe3ds_Utils.h"
+#include "assets/include/haxe3ds_Utils.h"
 #include <deque>
 #include <string>
 
