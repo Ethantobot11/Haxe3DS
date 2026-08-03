@@ -68,7 +68,7 @@ COMMON      := -Wall -mword-relocations -fomit-frame-pointer -ffunction-sections
 CFLAGS      := $(COMMON) -I"$(HXCPP_PATH)/include/" -std=c++26 -Wno-unused-variable -fexceptions -fpermissive -fvisibility=hidden -static [HAXE3DS_3DSLINK]
 CXXFLAGS    := $(CFLAGS) -w
 ASFLAGS     := $(ARCH)
-LDFLAGS		= -specs=3dsx.specs $(ARCH) -Wl,-Map,$(notdir $*.map) -Wl,--start-group -L$(TOPDIR) -L$(TOPDIR)/export -lHAXE3DS -lhxcpp -Wl,--end-group
+LDFLAGS 	= -specs=3dsx.specs $(ARCH) -Wl,-Map,$(notdir $*.map) -Wl,--start-group -L$(TOPDIR) -L$(TOPDIR)/build -lHAXE3DS -lhxcpp -Wl,--end-group
 
 #---------------------------------------------------------------------------------
 # Libraries needed to link into the executable.
