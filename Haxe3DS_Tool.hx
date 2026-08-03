@@ -49,6 +49,7 @@ class Haxe3DS_Tool {
 {2}
 -D lime_use_old_deltatime=1
 -D loop_unroll_max_cost=0
+-D no_pch
 -D nx
 -D HAXE_OUTPUT_PART=HAXE3DS
 -D HXCPP_SINGLE_THREADED_APP
