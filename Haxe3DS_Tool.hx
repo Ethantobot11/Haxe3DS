@@ -65,6 +65,8 @@ HXCPP_STACK_LINE
 static_link
 -D 
 message.reporting=pretty
+-D
+lime_use_old_deltatime=1
 -cpp export";
 
 	static function readConfig():Haxe3DSProject {
@@ -318,7 +320,6 @@ message.reporting=pretty
 						'-I' + Sys.getCwd() + '/.haxelib/haxe3ds/git/assets/include',
 						'-L"[DKP_PATH]/portlibs/3ds/lib"',
 						'-I"[DKP_PATH]/portlibs/3ds/include"',
-						'-Dlime_use_old_deltatime=1',
 						'-lz'
 					]
 				];
