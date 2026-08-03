@@ -305,7 +305,7 @@ class Haxe3DS_Tool {
 					"[HAXE3DS_FLAGS]" => [
 						'-lHAXE3DS',
 						'-Iexport/include',
-						'-I.haxelib/haxe3ds/git/assets/include',
+						'-I' + Sys.getCwd() + '/.haxelib/haxe3ds/git/assets/include',
 						'-L"[DKP_PATH]/portlibs/3ds/lib"',
 						'-I"[DKP_PATH]/portlibs/3ds/include"',
 						'-Dlime_use_old_deltatime=1',
@@ -366,7 +366,7 @@ class Haxe3DS_Tool {
 						if (lib == "haxe3ds") {
 							var includePath = '$path/assets/include';
 							if (FileSystem.exists(includePath)) {
-								attributes["[HAXE3DS_FLAGS]"].push('-I.haxelib/haxe3ds/git/assets/include');
+								attributes["[HAXE3DS_FLAGS]"].push('-I' + Sys.getCwd() + '/.haxelib/haxe3ds/git/assets/include');
 							}
 						}
 
