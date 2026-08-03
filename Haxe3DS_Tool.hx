@@ -47,7 +47,7 @@ class Haxe3DS_Tool {
 
 # defines
 {2}
--D lime_use_old_deltatime
+-D lime_use_old_deltatime=1
 -D loop_unroll_max_cost=0
 -D nx
 -D HAXE_OUTPUT_PART=HAXE3DS
