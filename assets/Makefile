@@ -120,7 +120,7 @@ export OFILES_SOURCES := $(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
 export OFILES_BIN     := $(addsuffix .o,$(BINFILES)) \
                          $(PICAFILES:.v.pica=.shbin.o) $(SHLISTFILES:.shlist=.shbin.o) \
                          $(if $(filter $(BUILD),$(GFXBUILD)),$(addsuffix .o,$(T3XFILES)))
-export OFILES := $(OFILES_BIN) $(OFILES_SOURCES) libHAXE3DS.a
+export OFILES := $(OFILES_BIN) $(OFILES_SOURCES) libHAXE3DS.a libhxcpp.a
 export HFILES         := $(PICAFILES:.v.pica=_shbin.h) $(SHLISTFILES:.shlist=_shbin.h) \
                          $(addsuffix .h,$(subst .,_,$(BINFILES))) \
                          $(GFXFILES:.t3s=.h)
