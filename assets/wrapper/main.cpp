@@ -10,10 +10,8 @@ extern char **_hxcpp_argv;
 #include <malloc.h>
 #include <sys/socket.h>
 
-extern "C" {
-	void __hxcpp_exit(int status) {
-		std::exit(status);
-	}
+void __hxcpp_exit(int status) {
+    std::exit(status);
 }
 
 void HAXE3DS_CTRUException(ERRF_ExceptionInfo* excep, CpuRegisters* regs) {
