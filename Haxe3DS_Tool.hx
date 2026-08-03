@@ -198,18 +198,24 @@ lime_use_old_deltatime=1
 
 		var make = CACIAAsStr(p);
 		var cmdToExecute = '${Sys.systemName() == "Windows" ? "" : "flatpak run org.azahar_emu.Azahar ./"}buildFiles/output.$make';
+		function safeRunEmulator() {
+			if (Sys.systemName() == "Windows" || Sys.command("which flatpak > /dev/null 2>&1") == 0) {
+				execute(cmdToExecute);
+			} else {
+				trace("Flatpak/Emulator not available in this environment. Skipping auto-launch.");
+			}
+		}
 		if (validateIP()) {
 			if (make == "3dsx") {
 				if (!execute('${toDKPPath("[DKP_PATH]/tools/bin/3dslink")} -a $ip ${p.settings.linkOptions.link3dsToConsole ? "-s" : ""} buildFiles/output.3dsx') && p.settings.linkOptions.openEmuIfTransferFailed) {
-					execute(cmdToExecute);
+					safeRunEmulator();
 				}
 			} else {
 				execute('curl --upload-file output.$make "ftp://$ip:5000/cia/"');
 			}
 		} else {
-			execute(cmdToExecute);
+			safeRunEmulator();
 		}
-	}
 
 	static function main() {
 		haxe.Log.trace = (v, ?infos) -> Sys.println(v);
