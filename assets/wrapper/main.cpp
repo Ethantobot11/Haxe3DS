@@ -81,7 +81,7 @@ extern "C" EXPORT_EXTRA int main() {
 		printf("[EXCEPTION OCCURRED!]\n%s\n\n", String(d).c_str());
 		__hx_dump_stack();
 #ifdef HAXE3DS_LINKTO3DS
-		if (sock > 0) closesocket(sock)
+		if (sock > 0) closesocket(sock);
 #else
 		printf("\nPress [START] to exit Haxe3DS");
 		while (hidScanInput(), !(hidKeysDown() & KEY_START) && aptMainLoop());
