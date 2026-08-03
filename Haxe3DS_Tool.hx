@@ -47,16 +47,26 @@ class Haxe3DS_Tool {
 
 # defines
 {2}
--D lime_use_old_deltatime=1
--D loop_unroll_max_cost=0
--D no_pch
--D nx
--D HAXE_OUTPUT_PART=HAXE3DS
--D HXCPP_SINGLE_THREADED_APP
--D HXCPP_STACK_TRACE
--D HXCPP_STACK_LINE
--D static_link
--D message.reporting=pretty
+-D 
+lime_use_old_deltatime=1
+-D 
+loop_unroll_max_cost=0
+-D 
+no_pch
+-D 
+nx
+-D 
+HAXE_OUTPUT_PART=HAXE3DS
+-D 
+HXCPP_SINGLE_THREADED_APP
+-D 
+HXCPP_STACK_TRACE
+-D 
+HXCPP_STACK_LINE
+-D 
+static_link
+-D 
+message.reporting=pretty
 -cpp export";
 
 	static function readConfig():Haxe3DSProject {
