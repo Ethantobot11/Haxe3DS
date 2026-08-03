@@ -68,7 +68,7 @@ COMMON      := -Wall -mword-relocations -fomit-frame-pointer -ffunction-sections
 CFLAGS      := $(COMMON) -I"$(HXCPP_PATH)/include/" -std=c++26 -Wno-unused-variable -fexceptions -fpermissive -fvisibility=hidden -static [HAXE3DS_3DSLINK]
 CXXFLAGS    := $(CFLAGS) -w
 ASFLAGS     := $(ARCH)
-LDFLAGS     = -specs=3dsx.specs $(ARCH) -Wl,-Map,$(notdir $*.map)
+LDFLAGS 	= -specs=3dsx.specs $(ARCH) -Wl,-Map,$(notdir $*.map) -Wl,--start-group -lHAXE3DS -lhxcpp -Wl,--end-group
 
 #---------------------------------------------------------------------------------
 # Libraries needed to link into the executable.
@@ -120,7 +120,7 @@ export OFILES_SOURCES := $(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
 export OFILES_BIN     := $(addsuffix .o,$(BINFILES)) \
                          $(PICAFILES:.v.pica=.shbin.o) $(SHLISTFILES:.shlist=.shbin.o) \
                          $(if $(filter $(BUILD),$(GFXBUILD)),$(addsuffix .o,$(T3XFILES)))
-export OFILES := $(OFILES_BIN) $(OFILES_SOURCES) libHAXE3DS.a -Wl,--start-group libhxcpp.a -Wl,--end-group
+export OFILES := $(OFILES_BIN) $(OFILES_SOURCES) libHAXE3DS.a libhxcpp.a
 export HFILES         := $(PICAFILES:.v.pica=_shbin.h) $(SHLISTFILES:.shlist=_shbin.h) \
                          $(addsuffix .h,$(subst .,_,$(BINFILES))) \
                          $(GFXFILES:.t3s=.h)
