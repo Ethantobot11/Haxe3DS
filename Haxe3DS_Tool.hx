@@ -304,6 +304,7 @@ class Haxe3DS_Tool {
 				var attributes:Map<String, Array<String>> = [
 					"[HAXE3DS_FLAGS]" => [
 						'-lHAXE3DS',
+						'-lhxcpp',
 						'-Iexport/include',
 						'-I' + Sys.getCwd() + '/.haxelib/haxe3ds/git/assets/include',
 						'-L"[DKP_PATH]/portlibs/3ds/lib"',
