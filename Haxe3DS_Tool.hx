@@ -365,7 +365,7 @@ class Haxe3DS_Tool {
 						if (lib == "haxe3ds") {
 							var includePath = '$path/assets/include';
 							if (FileSystem.exists(includePath)) {
-								attributes["[HAXE3DS_FLAGS]"].push('-I"$cwd/$includePath"');
+								recursiveCopyFiles(includePath, "export/include");
 							}
 						}
 
