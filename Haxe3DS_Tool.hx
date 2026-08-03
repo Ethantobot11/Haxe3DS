@@ -307,6 +307,7 @@ class Haxe3DS_Tool {
 						'-I"$cwd/export/include"',
 						'-L"[DKP_PATH]/portlibs/3ds/lib"',
 						'-I"[DKP_PATH]/portlibs/3ds/include"',
+						'-Dlime_use_old_deltatime=1',
 						'-lz'
 					]
 				];
