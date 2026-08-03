@@ -363,6 +363,13 @@ class Haxe3DS_Tool {
 						}
 
 						if (lib == "haxe3ds") {
+							var includePath = '$path/assets/include';
+							if (FileSystem.exists(includePath)) {
+								attributes["[HAXE3DS_FLAGS]"].push('-I"$cwd/$includePath"');
+							}
+						}
+
+						if (lib == "haxe3ds") {
 							try {
 								File.saveContent('$haxe3ds_romfspath/version', Json.parse(File.getContent('$path/haxelib.json')).version);
 							} catch(_) {
