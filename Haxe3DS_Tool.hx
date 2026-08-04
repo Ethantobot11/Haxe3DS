@@ -65,8 +65,6 @@ HXCPP_STACK_LINE
 static_link
 -D 
 message.reporting=pretty
--D
-lime_use_old_deltatime=1
 -cpp export";
 
 	static function readConfig():Haxe3DSProject {
