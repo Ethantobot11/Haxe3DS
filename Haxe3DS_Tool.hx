@@ -317,6 +317,7 @@ class Haxe3DS_Tool {
 				        '-Iexport/include',
 				        '-I' + Sys.getCwd() + '/.haxelib/haxe3ds/git/assets/include',
 				        '-I' + Sys.getCwd() + '/.haxelib/libcwav/git/include',
+						'-I' + Sys.getCwd() + '/.haxelib/libncsnd/git/include',
 				        '-L"[DKP_PATH]/portlibs/3ds/lib"',
 				        '-I"[DKP_PATH]/portlibs/3ds/include"',
 				        '-lz'
@@ -391,6 +392,13 @@ class Haxe3DS_Tool {
 						    var includePath = '$path/include';
 						    if (FileSystem.exists(includePath)) {
 						        attributes["[HAXE3DS_FLAGS]"].push('-I' + Sys.getCwd() + '/.haxelib/libcwav/git/include');
+						    }
+						}
+
+						if (lib == "libncsnd") {
+						    var includePath = '$path/include';
+						    if (FileSystem.exists(includePath)) {
+						        attributes["[HAXE3DS_FLAGS]"].push('-I' + Sys.getCwd() + '/.haxelib/libncsnd/git/include');
 						    }
 						}
 
