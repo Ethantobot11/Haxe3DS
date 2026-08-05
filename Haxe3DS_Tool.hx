@@ -61,7 +61,7 @@ class Haxe3DS_Tool {
 -D message.reporting=pretty
 
 # output directory
--cpp export
+-cpp export";
 
 	static function readConfig():Haxe3DSProject {
 		if (FileSystem.exists("3dsSettings.json")) {
