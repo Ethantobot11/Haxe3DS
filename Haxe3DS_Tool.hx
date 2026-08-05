@@ -313,6 +313,7 @@ class Haxe3DS_Tool {
 				    "[HAXE3DS_FLAGS]" => [
 				        '-lHAXE3DS',
 				        '-lcwav',
+						'-libncsnd',
 				        '-lhxcpp',
 				        '-Iexport/include',
 				        '-I' + Sys.getCwd() + '/.haxelib/haxe3ds/git/assets/include',
