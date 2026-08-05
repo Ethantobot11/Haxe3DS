@@ -310,17 +310,18 @@ class Haxe3DS_Tool {
 
 				var goodHaxeLibs:Array<String> = [];
 				var attributes:Map<String, Array<String>> = [
-					"[HAXE3DS_FLAGS]" => [
-						'-lHAXE3DS',
-						'-lhxcpp',
-						'-Iexport/include',
-						'-I' + Sys.getCwd() + '/.haxelib/haxe3ds/git/assets/include',
-						'-L"[DKP_PATH]/portlibs/3ds/lib"',
-						'-I"[DKP_PATH]/portlibs/3ds/include"',
-						'-lz'
-					]
+				    "[HAXE3DS_FLAGS]" => [
+				        '-lHAXE3DS',
+				        '-lcwav',
+				        '-lhxcpp',
+				        '-Iexport/include',
+				        '-I' + Sys.getCwd() + '/.haxelib/haxe3ds/git/assets/include',
+				        '-I' + Sys.getCwd() + '/.haxelib/libcwav/git/include',
+				        '-L"[DKP_PATH]/portlibs/3ds/lib"',
+				        '-I"[DKP_PATH]/portlibs/3ds/include"',
+				        '-lz'
+				    ]
 				];
-
 				{
 					final mapper:Map<String, Bool> = [
 						"-O2" => project.settings.optimizations.o2Flag,
@@ -384,6 +385,13 @@ class Haxe3DS_Tool {
 							} catch(_) {
 								File.saveContent('$haxe3ds_romfspath/version', "?");
 							}
+						}
+
+						if (lib == "libcwav") {
+						    var includePath = '$path/include';
+						    if (FileSystem.exists(includePath)) {
+						        attributes["[HAXE3DS_FLAGS]"].push('-I' + Sys.getCwd() + '/.haxelib/libcwav/git/include');
+						    }
 						}
 
 						recursiveCopyFiles('$path/assets', "export");
