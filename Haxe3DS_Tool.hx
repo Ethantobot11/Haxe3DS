@@ -43,8 +43,6 @@ class Haxe3DS_Tool {
 
 # libs
 -lib hxcpp
--lib citroengine
--lib haxe3ds
 
 # source path
 -cp source
