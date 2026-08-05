@@ -311,18 +311,21 @@ class Haxe3DS_Tool {
 				var goodHaxeLibs:Array<String> = [];
 				var attributes:Map<String, Array<String>> = [
 				    "[HAXE3DS_FLAGS]" => [
-				        '-lHAXE3DS',
-				        '-lcwav',
-						'-lncsnd',
-				        '-lhxcpp',
-				        '-Iexport/include',
-				        '-I' + Sys.getCwd() + '/.haxelib/haxe3ds/git/assets/include',
-				        '-I' + Sys.getCwd() + '/.haxelib/libcwav/git/include',
-						'-I' + Sys.getCwd() + '/.haxelib/libncsnd/git/include',
-				        '-L"[DKP_PATH]/portlibs/3ds/lib"',
-				        '-I"[DKP_PATH]/portlibs/3ds/include"',
-				        '-lz'
-				    ]
+					    '-lHAXE3DS',
+					    '-lcitro2d',
+					    '-lcitro3d',
+					    '-lctru',
+					    '-lcwav',
+					    '-lncsnd',
+					    '-lhxcpp',
+					    '-Iexport/include',
+					    '-I' + Sys.getCwd() + '/.haxelib/haxe3ds/git/assets/include',
+					    '-I' + Sys.getCwd() + '/.haxelib/libcwav/git/include',
+					    '-I' + Sys.getCwd() + '/.haxelib/libncsnd/git/include',
+					    '-L"[DKP_PATH]/portlibs/3ds/lib"',
+					    '-I"[DKP_PATH]/portlibs/3ds/include"',
+					    '-lz'
+					]
 				];
 				{
 					final mapper:Map<String, Bool> = [
