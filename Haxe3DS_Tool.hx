@@ -45,29 +45,23 @@ class Haxe3DS_Tool {
 -lib hxcpp
 -lib citroengine
 -lib haxe3ds
-{1}
+
+# source path
+-cp source
 
 # defines
-{2}
--D 
-loop_unroll_max_cost=0
--D 
-no_pch
--D 
-nx
--D 
-HAXE_OUTPUT_PART=HAXE3DS
--D 
-HXCPP_SINGLE_THREADED_APP
--D 
-HXCPP_STACK_TRACE
--D 
-HXCPP_STACK_LINE
--D 
-static_link
--D 
-message.reporting=pretty
--cpp export";
+-D loop_unroll_max_cost=0
+-D no_pch
+-D nx
+-D HAXE_OUTPUT_PART=HAXE3DS
+-D HXCPP_SINGLE_THREADED_APP
+-D HXCPP_STACK_TRACE
+-D HXCPP_STACK_LINE
+-D static_link
+-D message.reporting=pretty
+
+# output directory
+-cpp export
 
 	static function readConfig():Haxe3DSProject {
 		if (FileSystem.exists("3dsSettings.json")) {
