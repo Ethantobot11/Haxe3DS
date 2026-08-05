@@ -44,9 +44,6 @@ class Haxe3DS_Tool {
 # libs
 -lib hxcpp
 
-# source path
--cp source
-
 # defines
 -D loop_unroll_max_cost=0
 -D no_pch
