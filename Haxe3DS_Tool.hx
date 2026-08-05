@@ -54,6 +54,7 @@ class Haxe3DS_Tool {
 -D HXCPP_STACK_LINE
 -D static_link
 -D message.reporting=pretty
+{2}
 
 # output directory
 -cpp export";
