@@ -1,7 +1,7 @@
 BasicInfo:
   Title                   : $(APP_TITLE)
   ProductCode             : $(APP_PRODUCT_CODE)
-  Logo                    : TOBY FOX BY : DELTARUNE ????? # Nintendo / Licensed / Distributed / iQue / iQueForSystem
+  Logo                    : Homebrew # Nintendo / Licensed / Distributed / iQue / iQueForSystem
 
 RomFs:
   # Specifies the root path of the read only file system to include in the ROM.
@@ -30,32 +30,32 @@ AccessControlInfo:
 
   # ExtData
   UseExtSaveData                : true # enables ExtData       
-  #ExtSaveDataId                : 0x300 # only set this when the ID is different to the UniqueId
+  ExtSaveDataId                : 0x300 # only set this when the ID is different to the UniqueId
 
   # FS:USER Archive Access Permissions
   # Uncomment as required
   FileSystemAccess:
-   - CategorySystemApplication
-   - CategoryHardwareCheck
-   - CategoryFileSystemTool
+   #- CategorySystemApplication
+   #- CategoryHardwareCheck
+   #- CategoryFileSystemTool
    - Debug
-   - TwlCardBackup
-   - TwlNandData
-   - Boss
+   #- TwlCardBackup
+   #- TwlNandData
+   #- Boss
    - DirectSdmc
-   - Core
+   #- Core
    - CtrNandRo
    - CtrNandRw
    - CtrNandRoWrite
-   - CategorySystemSettings
-   - CardBoard
-   - ExportImportIvs
+   #- CategorySystemSettings
+   #- CardBoard
+   #- ExportImportIvs
    - DirectSdmcWrite
-   - SwitchCleanup
-   - SaveDataMove
-   - Shop
-   - Shell
-   - CategoryHomeMenu
+   #- SwitchCleanup
+   #- SaveDataMove
+   #- Shop
+   #- Shell
+   #- CategoryHomeMenu
 
   # Process Settings
   MemoryType                    : Application # Application/System/Base
