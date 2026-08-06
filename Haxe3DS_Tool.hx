@@ -48,6 +48,7 @@ class Haxe3DS_Tool {
 -D loop_unroll_max_cost=0
 -D no_pch
 -D nx
+-D haxe3ds
 -D HAXE_OUTPUT_PART=HAXE3DS
 -D HXCPP_SINGLE_THREADED_APP
 -D HXCPP_STACK_TRACE
