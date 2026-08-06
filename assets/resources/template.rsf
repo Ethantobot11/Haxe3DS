@@ -29,28 +29,28 @@ AccessControlInfo:
   ReleaseKernelMinor            : "33" 
 
   # ExtData
-  UseExtSaveData                : true # enables ExtData       
-  ExtSaveDataId                : 0x300 # only set this when the ID is different to the UniqueId
+  UseExtSaveData                : false # enables ExtData       
+  #ExtSaveDataId                : 0x300 # only set this when the ID is different to the UniqueId
 
   # FS:USER Archive Access Permissions
   # Uncomment as required
   FileSystemAccess:
    #- CategorySystemApplication
    #- CategoryHardwareCheck
-   #- CategoryFileSystemTool
-   - Debug
+   - CategoryFileSystemTool
+   #- Debug
    #- TwlCardBackup
    #- TwlNandData
    #- Boss
    - DirectSdmc
    #- Core
-   - CtrNandRo
-   - CtrNandRw
-   - CtrNandRoWrite
+   #- CtrNandRo
+   #- CtrNandRw
+   #- CtrNandRoWrite
    #- CategorySystemSettings
    #- CardBoard
    #- ExportImportIvs
-   - DirectSdmcWrite
+   #- DirectSdmcWrite
    #- SwitchCleanup
    #- SaveDataMove
    #- Shop
@@ -72,7 +72,7 @@ AccessControlInfo:
   CanUseNonAlphabetAndNumber    : true
   PermitMainFunctionArgument    : true
   CanShareDeviceMemory          : true
-  RunnableOnSleep               : true
+  RunnableOnSleep               : false
   SpecialMemoryArrange          : true
 
   # New3DS Exclusive Process Settings
