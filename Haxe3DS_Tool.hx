@@ -46,6 +46,7 @@ class Haxe3DS_Tool {
 
 # defines
 -D loop_unroll_max_cost=0
+-D no_ssl
 -D no_pch
 -D nx
 -D haxe3ds
