@@ -2,24 +2,22 @@ package haxe3ds.services;
 
 import haxe3ds.types.Result;
 
-/**
- * RomFS Driver, for Mounting, Unmounting, etc.
- */
 @:cppInclude("3ds.h")
+@:cppInclude("coreinit.h")
 class RomFS {
-	/**
-	 * A function to mount the RomFS driver, upon doing so, this allows devs to use `romfs:/` extensions, accessing other files for reading only.
-	 * @return Result to indicate whether an error has occurred or not.
-	 */
 	public static inline function init():Result {
+		#if HAXE3DS
 		return untyped __cpp__('romfsInit()');
+		#else
+		return 0; 
+		#end
 	}
 
-	/**
-	 * A function that unmounts the RomFS driver, it completely blocks you from accessing `romfs:/` for other files.
-	 * @return Result to indicate whether an error has occurred or not.
-	 */
 	public static inline function exit():Result {
+		#if HAXE3DS
 		return untyped __cpp__('romfsExit()');
+		#else
+		return 0;
+		#end
 	}
 }
