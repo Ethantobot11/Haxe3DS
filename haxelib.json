@@ -8,5 +8,5 @@
     "releasenote":  "See https://github.com/Haxe3DS/Haxe3DS/blob/main/RELEASES.md#191 for release notes.",
     "contributors": ["NAEL2XD"],
     "dependencies": {},
-    "main":         "HaxeConsoleTool"
+    "main":         "Haxe3DS_Tool"
 }
