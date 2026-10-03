@@ -1,27 +1,20 @@
 package haxe3ds;
 
-/**
- * The concurrent Homebrew Environment Configuration.
- * 
- * @since 1.3.0
- */
 @:cppInclude("3ds.h")
+@:cppInclude("coreinit.h")
 class Env {
-	/**
-	 * Getter Variable that checks if it's running in 3DSX application using `envIsHomebrew()`, true if so, false if running in a CIA Application.
-	 */
 	public static var is3DSX(get, null):Bool;
 	static inline function get_is3DSX():Bool {
+		#if HAXE3DS
 		return untyped __cpp__('envIsHomebrew()');
+		#else
+		return false;
+		#end
 	}
 
-	/**
-	 * Getter Variable that checks if it's using from a console and not from an emulator (aka tries to connect to port "hb:ldr" and closes if success).
-	 * 
-	 * @since 1.5.0
-	 */
 	public static var isUsing3DS(get, null):Bool;
 	static function get_isUsing3DS():Bool {
+		#if HAXE3DS
 		var isLuma:Bool = false;
 		untyped __cpp__('
 			Handle lumaCheck;
@@ -29,5 +22,17 @@ class Env {
 			if(isLuma) svcCloseHandle(lumaCheck)
 		');
 		return isLuma;
+		#else
+		return false;
+		#end
+	}
+
+	public static var isWiiU(get, null):Bool;
+	static inline function get_isWiiU():Bool {
+		#if HAXEWIIU
+		return true;
+		#else
+		return false;
+		#end
 	}
 }
