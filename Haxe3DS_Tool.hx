@@ -5,44 +5,46 @@ import sys.io.File;
 
 using StringTools;
 
-typedef ConsoleOptimization = {
+typedef H3DSP_Optimization = {
 	var gFlag:Bool;
 	var o2Flag:Bool;
 }
 
-typedef ConsoleLinkOptions = {
+typedef H3DSP_LinkOptions = {
 	var ip:String;
 	var linkToConsole:Bool;
 	var openEmuIfTransferFailed:Bool;
 }
 
-typedef ConsoleSettings = {
-	var target:String;
+typedef H3DSP_Settings = {
 	var deleteTempFiles:Bool;
 	var compileAsPlugin:Bool;
 	var defines:Array<String>;
 	var libraries:Array<String>;
-	var linkOptions:ConsoleLinkOptions;
-	var optimizations:ConsoleOptimization;
+	var linkOptions:H3DSP_LinkOptions;
+	var optimizations:H3DSP_Optimization;
 }
 
-typedef ConsoleMetadata = {
+typedef H3DSP_Metadata = {
 	var title:String;
 	var description:String;
 	var author:String;
 }
 
-typedef HaxeConsoleProject = {
-	var settings:ConsoleSettings;
-	var metadata:ConsoleMetadata;
+typedef Haxe3DSProject = {
+	var settings:H3DSP_Settings;
+	var metadata:H3DSP_Metadata;
 }
 
-class HaxeConsoleTool {
+class Haxe3DS_Tool {
 	static var cwd = "";
-	
 	static var HXML_TEMP = "-cp source
 -main Main
+
+# libs
 -lib hxcpp
+
+# defines
 -D loop_unroll_max_cost=0
 -D no_ssl
 -D no_pch
@@ -54,13 +56,15 @@ class HaxeConsoleTool {
 -D static_link
 -D message.reporting=pretty
 {2}
+
+# output directory
 -cpp export";
 
-	static function readConfig():HaxeConsoleProject {
-		if (FileSystem.exists("consoleSettings.json")) {
-			return Json.parse(File.getContent("consoleSettings.json"));
+	static function readConfig():Haxe3DSProject {
+		if (FileSystem.exists("3dsSettings.json")) {
+			return Json.parse(File.getContent("3dsSettings.json"));
 		}
-		throw 'Please generate it by calling "haxelib run haxeconsole -g" to generate a Config File.';
+		throw 'Please generate it by calling "haxelib run haxe3ds -g" to generate a Config File.';
 	}
 
 	inline static function execute(cmd:String):Bool {
@@ -119,14 +123,14 @@ class HaxeConsoleTool {
 		if (FileSystem.exists(file)) FileSystem.deleteFile(file);
 	}
 
-	static function getTargetExt(p:HaxeConsoleProject):String {
-		if (p.settings.target == "wiiu") return p.settings.compileAsPlugin ? "wps" : "rpx";
-		return p.settings.compileAsPlugin ? "cia" : "3dsx";
+	static function getTargetExt(project:Haxe3DSProject, isWiiU:Bool):String {
+		if (isWiiU) return project.settings.compileAsPlugin ? "wps" : "rpx";
+		return project.settings.compileAsPlugin ? "cia" : "3dsx";
 	}
 
-	static function fileHandler(p:HaxeConsoleProject = null) {
+	static function fileHandler(p:Haxe3DSProject = null, isWiiU:Bool = false) {
 		if (p == null) p = readConfig();
-		var ext = getTargetExt(p);
+		var ext = getTargetExt(p, isWiiU);
 		if (!FileSystem.exists('buildFiles/output.$ext')) {
 			trace("Application needs to be built first");
 			return;
@@ -147,18 +151,18 @@ class HaxeConsoleTool {
 
 		if (validateIP() && p.settings.linkOptions.linkToConsole) {
 			var devkitpro = toDKPPath("[DKP_PATH]");
-			if (p.settings.target == "3ds") {
+			if (!isWiiU) {
 				var tool = Sys.systemName() == "Windows" ? '$devkitpro/tools/bin/3dslink.exe' : '$devkitpro/tools/bin/3dslink';
 				if (!execute('$tool -a $ip buildFiles/output.3dsx') && p.settings.linkOptions.openEmuIfTransferFailed) {
 					trace("Transfer failed, try running emulator manually.");
-			 }
+				}
 			} else {
 				var tool = Sys.systemName() == "Windows" ? '$devkitpro/tools/bin/wiiload.exe' : '$devkitpro/tools/bin/wiiload';
 				Sys.putEnv("WIILOAD", 'tcp:$ip');
 				execute('$tool buildFiles/output.$ext');
 			}
 		} else {
-			trace("Skipping auto-launch. Set a valid IP in consoleSettings.json to use 3dslink/wiiload.");
+			trace("Skipping auto-launch. Set a valid IP in 3dsSettings.json to use 3dslink/wiiload.");
 		}
 	}
 
@@ -178,11 +182,12 @@ class HaxeConsoleTool {
 		var args = Sys.args();
 		if (args.length == 1) {
 			trace("
-\tArgs (haxelib run haxeconsole [arg]):
+\tArgs (haxelib run haxe3ds [arg]):
 \t\t[-g]: Generates a New JSON for Console format.
 \t\t[-c]: Compiles to a compatible working application.
 \t\t[-e]: Calls addr2line for Error Lookup.
 \t\t[-s]: Wrapper for Sending the built application.
+\t\tUse -Dnx or -D3ds for 3DS, and -Dwiiu or -Dcafe for Wii U.
 			");
 			return;
 		}
@@ -195,12 +200,14 @@ class HaxeConsoleTool {
 
 		cwd = Sys.getCwd().replace("\\", "/");
 		cwd = cwd.substr(0, cwd.length - 1);
+		
+		var isWiiU = args.contains("-Dwiiu") || args.contains("-Dcafe");
+
 		switch args.shift() {
 			case "-g":
-				if (FileSystem.exists('consoleSettings.json') && !askForInput("consoleSettings.json EXISTS! Overwrite?")) return;
-				var out:HaxeConsoleProject = {
+				if (FileSystem.exists('3dsSettings.json') && !askForInput("3dsSettings.json EXISTS! Overwrite?")) return;
+				var out:Haxe3DSProject = {
 					settings: {
-						target: "3ds",
 						deleteTempFiles: false,
 						compileAsPlugin: false,
 						defines: [],
@@ -210,7 +217,7 @@ class HaxeConsoleTool {
 					},
 					metadata: { title: "HaxeConsole", description: "Made with Haxe!", author: "Author" }
 				};
-				File.saveContent('consoleSettings.json', Json.stringify(out, null, "\t"));
+				File.saveContent('3dsSettings.json', Json.stringify(out, null, "\t"));
 				trace("Generated Console Settings Config!");
 
 			case "-c":
@@ -221,14 +228,13 @@ class HaxeConsoleTool {
 					else { out.writeString('\x1b[31;1m NG. $ngText \x1b[37;1m \n'); Sys.exit(1); }
 				}
 
-				sanityCheck("Checking for Config", () -> FileSystem.exists("consoleSettings.json"), 'Run "-g" first.');
+				sanityCheck("Checking for Config", () -> FileSystem.exists("3dsSettings.json"), 'Run "-g" first.');
 				
-				var project:HaxeConsoleProject = null;
+				var project:Haxe3DSProject = null;
 				sanityCheck("Loading the Project", () -> {
 					try { project = readConfig(); return true; } catch(_) { return false; }
 				}, 'JSON is not Formatted Correctly!');
 
-				var isWiiU = project.settings.target == "wiiu";
 				var goodHaxeLibs:Array<String> = [];
 				var flagsKey = isWiiU ? "[HAXEWIIU_FLAGS]" : "[HAXE3DS_FLAGS]";
 				var attributes:Map<String, Array<String>> = [ flagsKey => [] ];
@@ -269,7 +275,7 @@ class HaxeConsoleTool {
 				for (define in project.settings.defines) {
 					HXML_TEMP += '$define\n';
 					attributes[flagsKey].push(define);
-			 }
+				}
 				File.saveContent("build.hxml", HXML_TEMP);
 
 				sanityCheck("Updating toolchain for compiler use", () -> {
@@ -291,6 +297,12 @@ class HaxeConsoleTool {
 				sanityCheck("Compiling using the custom HXML file", () -> execute("haxe build.hxml"), "Failed to compile!");
 				
 				Sys.setCwd('export');
+
+				var makefileName = isWiiU ? (project.settings.compileAsPlugin ? "Makefile.wups" : "Makefile.wut") : "Makefile";
+				if (FileSystem.exists('../$makefileName')) {
+					File.copy('../$makefileName', 'Makefile');
+				}
+
 				var makeTarget = isWiiU ? (project.settings.compileAsPlugin ? "wps" : "rpx") : (project.settings.compileAsPlugin ? "cia" : "3dsx");
 				sanityCheck("Finally Compiling to Working Application", () -> execute('make clean && make $makeTarget'), "Failed to compile!");
 
@@ -304,13 +316,12 @@ class HaxeConsoleTool {
 					recursiveRMTree("export/output");
 				}
 				trace("Successfully Compiled!");
-				fileHandler(project);
+				fileHandler(project, isWiiU);
 
-			case "-s": fileHandler();
+			case "-s": 
+				fileHandler(null, isWiiU);
 			case "-e":
 				var devkitpro = toDKPPath("[DKP_PATH]");
-				var project = readConfig();
-				var isWiiU = project.settings.target == "wiiu";
 				var addr2line = isWiiU 
 					? (Sys.systemName() == "Windows" ? '$devkitpro/devkitPPC/bin/powerpc-eabi-addr2line.exe' : '$devkitpro/devkitPPC/bin/powerpc-eabi-addr2line')
 					: (Sys.systemName() == "Windows" ? '$devkitpro/devkitARM/bin/arm-none-eabi-addr2line.exe' : '$devkitpro/devkitARM/bin/arm-none-eabi-addr2line');
