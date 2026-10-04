@@ -37,28 +37,9 @@ typedef Haxe3DSProject = {
 }
 
 class Haxe3DS_Tool {
-static var cwd = "";
-static var HXML_TEMP = "-cp source
--main Main
-
-# libs
--lib hxcpp
-
-# defines
--D loop_unroll_max_cost=0
--D no_ssl
--D no_pch
-{1}
--D HAXE_OUTPUT_PART=HAXE_CONSOLE
--D HXCPP_SINGLE_THREADED_APP
--D HXCPP_STACK_TRACE
--D HXCPP_STACK_LINE
--D static_link
--D message.reporting=pretty
-{2}
-
-# output directory
--cpp export";
+	static var cwd = "";
+	
+	static var HXML_TEMP = "-cp source\n-main Main\n\n# libs\n-lib hxcpp\n\n# defines\n-D loop_unroll_max_cost=0\n-D no_ssl\n-D no_pch\n{1}\n-D HAXE_OUTPUT_PART=HAXE_CONSOLE\n-D HXCPP_SINGLE_THREADED_APP\n-D HXCPP_STACK_TRACE\n-D HXCPP_STACK_LINE\n-D static_link\n-D message.reporting=pretty\n{2}\n\n# output directory\n-cpp export";
 
 	static function readConfig():Haxe3DSProject {
 		if (FileSystem.exists("3dsSettings.json")) {
@@ -81,12 +62,12 @@ static var HXML_TEMP = "-cp source
 	static function askForInput(warning:String):Bool {
 		try {
 			trace('/!\\ $warning /!\\\n\t[Y] = YES\t\t[N] = NO');
-			Sys.print("> \x1b[36;1m");
+			Sys.print("> ");
 			var out = Sys.stdin().readLine().toLowerCase().charAt(0) == "y";
-			Sys.print("\x1b[37;1m");
+			Sys.print("\n");
 			return out;
 		} catch(_:Eof) {
-			trace("\n\x1b[37;1mNo, don't input an EOF. :(");
+			trace("\nNo, don't input an EOF. :(");
 			return askForInput(warning);
 		}
 	}
@@ -169,24 +150,18 @@ static var HXML_TEMP = "-cp source
 	static function main() {
 		haxe.Log.trace = (v, ?infos) -> Sys.println(v);
 		
-		Sys.print('\x1b[33;1m\n');
-		Sys.print('██    ██   ██████   ██    ██  ████████   ██████   ███████    ██████\n');
-		Sys.print('██    ██  ██    ██  ██    ██  ██    ██  ██    ██  ██   ███  ██    ██\n');
-		Sys.print('██    ██  ██    ██   ██  ██   ██              ██  ██    ██  ██\n');
-		Sys.print('████████  ████████    ████    ██████      █████   ██    ██   ██████\n');
-		Sys.print('██    ██  ██    ██   ██  ██   ██              ██  ██    ██        ██\n');
-		Sys.print('██    ██  ██    ██  ██    ██  ██    ██  ██    ██  ██   ███  ██    ██\n');
-		Sys.print('██    ██  ██    ██  ██    ██  ████████   ██████   ███████    ██████\x1b[37;1m\n');
-		Sys.print('======================== Unified Console Tool ========================\n');
+		Sys.println("========================================================");
+		Sys.println("  Haxe3DS Unified Console Tool");
+		Sys.println("========================================================");
 
 		var args = Sys.args();
 		if (args.length == 1) {
-			trace("\n\tArgs (haxelib run haxe3ds [arg]):");
-			trace("\t\t[-g]: Generates a New JSON for Console format.");
-			trace("\t\t[-c]: Compiles to a compatible working application.");
-			trace("\t\t[-e]: Calls addr2line for Error Lookup.");
-			trace("\t\t[-s]: Wrapper for Sending the built application.");
-			trace("\t\tUse -Dnx or -D3ds for 3DS, and -Dwiiu or -Dcafe for Wii U.\n");
+			Sys.println("\nArgs (haxelib run haxe3ds [arg]):");
+			Sys.println("\t[-g]: Generates a New JSON for Console format.");
+			Sys.println("\t[-c]: Compiles to a compatible working application.");
+			Sys.println("\t[-e]: Calls addr2line for Error Lookup.");
+			Sys.println("\t[-s]: Wrapper for Sending the built application.");
+			Sys.println("\tUse -Dnx or -D3ds for 3DS, and -Dwiiu or -Dcafe for Wii U.\n");
 			return;
 		}
 
@@ -221,9 +196,13 @@ static var HXML_TEMP = "-cp source
 			case "-c":
 				function sanityCheck(info:String, func:()->Bool, ngText:String = "") {
 					var out = Sys.stdout();
-					Sys.print('\x1b[35;1m> $info...\x1b[37;1m');
-					if (func()) { out.writeString("\x1b[32;1m OK. \x1b[37;1m \n"); } 
-					else { out.writeString('\x1b[31;1m NG. $ngText \x1b[37;1m \n'); Sys.exit(1); }
+					Sys.print('> $info...');
+					if (func()) { 
+						out.writeString(" OK. \n"); 
+					} else { 
+						out.writeString(' NG. $ngText \n'); 
+						Sys.exit(1); 
+					}
 				}
 
 				sanityCheck("Checking for Config", () -> FileSystem.exists("3dsSettings.json"), 'Run "-g" first.');
