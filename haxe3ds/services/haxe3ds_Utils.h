@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(HAXE3DS)
+#if !defined(HAXE3DS)
 #include <3ds.h>
 #endif
 #include <stdio.h>
@@ -8,7 +8,7 @@
 #define CLAMP(var, x, y) ((var) < (x) ? (x) : (var) > (y) ? (y) : (var))
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
-#if defined(HAXE3DS)
+#if !defined(HAXE3DS)
 #define RETURN_NULL_IF_FAILED(x) \
 	{ \
 		Result code = x; \
