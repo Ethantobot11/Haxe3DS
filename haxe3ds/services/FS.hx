@@ -51,9 +51,9 @@ class FS {
 		#end
 	}
 
-	#if HAXE3DS
-	#if IS_CIA
 	public static function mountSaveData(partition:String = "ext", files:Int = 1, dirs:Int = 1):Result {
+		#if HAXE3DS
+		#if IS_CIA
 		var res:Result = 0;
 		untyped __cpp__('
 			const char* p = partition.c_str();
@@ -64,13 +64,25 @@ class FS {
 			}
 		');
 		return res;
+		#else
+		return 0;
+		#end
+		#else
+		return 0;
+		#end
 	}
 
 	public static function flushAndCommit(partition:String = "ext"):Result {
+		#if HAXE3DS
+		#if IS_CIA
 		return untyped __cpp__('archiveCommitSaveData(partition.c_str())');
+		#else
+		return 0;
+		#end
+		#else
+		return 0;
+		#end
 	}
-	#end
-	#end
 
 	public static var playCoins(get, set):UInt16;
 	
@@ -194,49 +206,14 @@ typedef FSSMDHAppTitle = {
  * @since 1.6.0
  */
 enum FSSMDHAppGameRatingsFlag {
-	/**
-	 * CERO (Japan)
-	 */
 	CERO;
-
-	/**
-	 * ESRB (USA)
-	 */
 	ESRB;
-
-	/**
-	 * USK (German)
-	 */
 	USK;
-
-	/**
-	 * PEGI GEN (Europe)
-	 */
 	PEGI_GEN;
-
-	/**
-	 * PEGI PRT (Portugal)
-	 */
 	PEGI_PRT;
-
-	/**
-	 * PEGI BBFC (England)
-	 */
 	PEGI_BBFC;
-
-	/**
-	 * COB (Australia)
-	 */
 	COB;
-
-	/**
-	 * GRB (South Korea)
-	 */
 	GRB;
-
-	/**
-	 * CGSRR (Taiwan)
-	 */
 	CGSRR;
 }
 
@@ -245,53 +222,12 @@ enum FSSMDHAppGameRatingsFlag {
  * @since 1.6.0
  */
 enum FSSMDHAppRegionLockout {
-	/**
-	 * Japan
-	 * 
-	 * `BITMASK 0x01`
-	 */
 	JAPAN;
-
-	/**
-	 * North America
-	 * 
-	 * `BITMASK 0x02`
-	 */
 	NORTH_AMERICA;
-
-	/**
-	 * Europe
-	 * 
-	 * `BITMASK 0x04`
-	 */
 	EUROPE;
-
-	/**
-	 * Australia
-	 * 
-	 * `BITMASK 0x08`
-	 */
 	AUSTRALIA;
-
-	/**
-	 * China
-	 * 
-	 * `BITMASK 0x10`
-	 */
 	CHINA;
-
-	/**
-	 * Korea
-	 * 
-	 * `BITMASK 0x20`
-	 */
 	KOREA;
-
-	/**
-	 * Taiwan
-	 * 
-	 * `BITMASK 0x40`
-	 */
 	TAIWAN;
 }
 
@@ -300,14 +236,7 @@ enum FSSMDHAppRegionLockout {
  * The Title's App Settings.
  */
 typedef FSSMDHAppSettings = {
-	/**
-	 * Title's Game Ratings that can be used for Parental Controls.
-	 */
 	var gameRatings:Array<FSSMDHAppGameRatingsFlag>;
-
-	/**
-	 * Title's Region Lockout that's restricted by Region.
-	 */
 	var regionLock:Array<FSSMDHAppRegionLockout>;
 };
 
@@ -354,52 +283,14 @@ struct SMDH {
 };
 ')
 class FSSMDH {
-	/**
-	 * Result by any of the File System API called.
-	 */
 	public var result(default, null):Result = 0;
-
-	/**
-	 * Whether or not this SMDH metadata is valid.
-	 */
 	public var valid(default, null):Bool = false;
-
-	/**
-	 * An array for application titles.
-	 *
-	 * ```
-	 * INDEX | Language
-	 * ----------------
-	 * 0     | Japanese
-	 * 1     | English
-	 * 2     | French
-	 * 3     | German
-	 * 4     | Italian
-	 * 5     | Spanish
-	 * 6     | Simplified Chinese
-	 * 7     | Korean
-	 * 8     | Dutch
-	 * 9     | Portuguese
-	 * 10    | Russian
-	 * 11    | Traditional Chinese
-	 * ```
-	 */
 	public var applicationTitles(default, null):Array<FSSMDHAppTitle> = [];
-
-	/**
-	 * App Settings that is only used by HOME Menu.
-	 */
 	public var appSettings(default, null):FSSMDHAppSettings = {
 		gameRatings: [],
 		regionLock: []
 	};
 
-	/**
-	 * Constructor for the SMDH Metadata.
-	 * @param highTID The HIGH Title ID to use.
-	 * @param lowTID The LOW Title ID to use.
-	 * @param media The mediatype for the title.
-	 */
 	public function new(highTID:Int, lowTID:Int, media:FSMediaType) {
 		untyped __cpp__('
 			u32 archPath[] = {lowTID, highTID, (FS_MediaType)media, 0x0};
