@@ -17,12 +17,12 @@ class APT {
 		#end
 	}
 
-	public static var programID(get, null):UInt64;
-	static function get_programID():UInt64 {
-		#if HAXE3DS
+	public static var programID(get, null):cpp.UInt64;
+	static function get_programID():cpp.UInt64 {
+		#if !wiiu
 		return untyped __cpp__('API_GETTER(u64, APT_GetProgramID, 0)');
 		#else
-		return 0x0005000010100000;
+		return (cpp.UInt64(0x00050000) << 32) | cpp.UInt64(0x10100000);
 		#end
 	}
 
