@@ -1,11 +1,14 @@
 #pragma once
 
+#if defined(HAXE3DS)
 #include <3ds.h>
+#endif
 #include <stdio.h>
 
 #define CLAMP(var, x, y) ((var) < (x) ? (x) : (var) > (y) ? (y) : (var))
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
+#if defined(HAXE3DS)
 #define RETURN_NULL_IF_FAILED(x) \
 	{ \
 		Result code = x; \
@@ -23,6 +26,23 @@
 			return code; \
 		} \
 	}
+#else
+#define RETURN_NULL_IF_FAILED(x) \
+	{ \
+		if (x != 0) { \
+			printf(#x " FAILED!"); \
+			return null(); \
+		} \
+	}
+
+#define RETURN_RESULT_IF_FAILED(x) \
+	{ \
+		if (x != 0) { \
+			printf(#x " FAILED!"); \
+			return x; \
+		} \
+	}
+#endif
 
 #define TRANSFER(input, output) \
 	([&]{ \
@@ -37,7 +57,7 @@
 #define u16ToString(input) \
 	([&]{ \
 		size_t iSize = sizeof(input); \
-		u8 _out[iSize + 1] = {0}; \
+		unsigned char _out[iSize + 1] = {0}; \
 		ssize_t size = TRANSFER(input, _out); \
 		if (size == 0) return String(""); \
 		return String(reinterpret_cast<char*>(_out)); \
