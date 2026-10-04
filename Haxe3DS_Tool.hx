@@ -262,7 +262,10 @@ class Haxe3DS_Tool {
 						var xmlContent = File.getContent('$toolchainPath/$xmlName');
 						for (key => flags in attributes.keyValueIterator()) {
 							var values = "";
-							for (flag in flags) values += '<flag value=\'${flag.replace("\\", "/").trim()}\'/>\n';
+							for (flag in flags) {
+							    var cleanFlag = flag.replace("\\", "/").trim();
+							    values += '<flag value=\'' + cleanFlag + '\'/>\n';
+							}
 							xmlContent = xmlContent.replace(key, values);
 						}
 						File.saveContent('$toolchainPath/linux-toolchain.xml', toDKPPath(xmlContent));
