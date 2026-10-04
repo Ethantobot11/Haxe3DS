@@ -12,13 +12,13 @@ typedef H3DSP_Optimization = {
 
 typedef H3DSP_LinkOptions = {
 	var ip:String;
-	var link3dsToConsole:Bool;
+	var linkToConsole:Bool;
 	var openEmuIfTransferFailed:Bool;
 }
 
 typedef H3DSP_Settings = {
 	var deleteTempFiles:Bool;
-	var compileAsCIA:Bool;
+	var compileAsPlugin:Bool;
 	var defines:Array<String>;
 	var libraries:Array<String>;
 	var linkOptions:H3DSP_LinkOptions;
@@ -37,8 +37,8 @@ typedef Haxe3DSProject = {
 }
 
 class Haxe3DS_Tool {
-	static var cwd = "";
-	static var HXML_TEMP = "-cp source
+static var cwd = "";
+static var HXML_TEMP = "-cp source
 -main Main
 
 # libs
@@ -48,10 +48,8 @@ class Haxe3DS_Tool {
 -D loop_unroll_max_cost=0
 -D no_ssl
 -D no_pch
--D nx
--D haxe3ds
--D CITROENGINE
--D HAXE_OUTPUT_PART=HAXE3DS
+{1}
+-D HAXE_OUTPUT_PART=HAXE_CONSOLE
 -D HXCPP_SINGLE_THREADED_APP
 -D HXCPP_STACK_TRACE
 -D HXCPP_STACK_LINE
@@ -66,7 +64,6 @@ class Haxe3DS_Tool {
 		if (FileSystem.exists("3dsSettings.json")) {
 			return Json.parse(File.getContent("3dsSettings.json"));
 		}
-
 		throw 'Please generate it by calling "haxelib run haxe3ds -g" to generate a Config File.';
 	}
 
@@ -77,10 +74,7 @@ class Haxe3DS_Tool {
 
 	static function toDKPPath(pathString:String):String {
 		var env = Sys.getEnv("DEVKITPRO");
-		if (env != null) {
-			return pathString.replace("[DKP_PATH]", env);
-		}
-
+		if (env != null) return pathString.replace("[DKP_PATH]", env);
 		return pathString.replace("[DKP_PATH]", Sys.systemName() == "Windows" ? "C:/devkitpro" : "/opt/devkitpro");
 	}
 
@@ -91,7 +85,7 @@ class Haxe3DS_Tool {
 			var out = Sys.stdin().readLine().toLowerCase().charAt(0) == "y";
 			Sys.print("\x1b[37;1m");
 			return out;
-		} catch(_:Eof) { // happens only to throw eof?
+		} catch(_:Eof) {
 			trace("\n\x1b[37;1mNo, don't input an EOF. :(");
 			return askForInput(warning);
 		}
@@ -102,68 +96,42 @@ class Haxe3DS_Tool {
 		var path = "";
 		for (dir in dirs) {
 			path += '$dir/';
-
-			try {
-				FileSystem.createDirectory(path);
-			} catch(_) {
-				continue;
-			}
+			try { FileSystem.createDirectory(path); } catch(_) {}
 		}
 	}
 
 	static function recursiveCopyFiles(fromDir:String, toDir:String) {
-		if (!FileSystem.exists(fromDir)) {
-			return;
-		}
-
+		if (!FileSystem.exists(fromDir)) return;
 		makeDirs('$toDir/');
 		for (list in FileSystem.readDirectory(fromDir)) {
 			var path = '$fromDir/$list';
-			if (FileSystem.isDirectory(path)) {
-				recursiveCopyFiles(path, '$toDir/$list');
-			} else {
-				File.saveBytes('$toDir/$list', File.getBytes(path));
-			}
+			if (FileSystem.isDirectory(path)) recursiveCopyFiles(path, '$toDir/$list');
+			else File.saveBytes('$toDir/$list', File.getBytes(path));
 		}
 	}
 
 	static function recursiveRMTree(dir:String) {
 		for (list in FileSystem.readDirectory(dir)) {
 			var path = '$dir/$list';
-			if (FileSystem.isDirectory(path)) {
-				recursiveRMTree(path);
-			} else {
-				FileSystem.deleteFile(path);
-			}
+			if (FileSystem.isDirectory(path)) recursiveRMTree(path);
+			else FileSystem.deleteFile(path);
 		}
-
 		FileSystem.deleteDirectory(dir);
 	}
 
-	static function incrementFile(file:String) {
-		try {
-			File.saveContent(file, '${Std.parseInt(File.getContent(file)) + 1}');
-		} catch(_) {
-			File.saveContent(file, "1");
-		}
-	}
-
 	inline static function deleteFileIfExist(file:String) {
-		if (FileSystem.exists(file)) {
-			FileSystem.deleteFile(file);
-		}
+		if (FileSystem.exists(file)) FileSystem.deleteFile(file);
 	}
 
-	inline static function CACIAAsStr(project:Haxe3DSProject):String {
-		return project.settings.compileAsCIA ? "cia" : "3dsx";
+	static function getTargetExt(project:Haxe3DSProject, isWiiU:Bool):String {
+		if (isWiiU) return project.settings.compileAsPlugin ? "wps" : "rpx";
+		return project.settings.compileAsPlugin ? "cia" : "3dsx";
 	}
 
-	static function fileHandler(p:Haxe3DSProject = null) {
-		if (p == null) {
-			p = readConfig();
-		}
-
-		if (!FileSystem.exists('buildFiles/output.${CACIAAsStr(p)}')) {
+	static function fileHandler(p:Haxe3DSProject = null, isWiiU:Bool = false) {
+		if (p == null) p = readConfig();
+		var ext = getTargetExt(p, isWiiU);
+		if (!FileSystem.exists('buildFiles/output.$ext')) {
 			trace("Application needs to be built first");
 			return;
 		}
@@ -171,69 +139,54 @@ class Haxe3DS_Tool {
 		var ip = p.settings.linkOptions.ip;
 		function validateIP():Bool {
 			var dots = ip.split(".");
-			if (dots.length != 4) {
-				return false;
-			}
-
+			if (dots.length != 4) return false;
 			for (number in dots) {
 				try {
 					var num = Std.parseInt(number);
-					if (num == null || !(-1 < num && num < 256)) {
-						return false;
-					}
-				} catch(_) {
-					return false;
-				}
+					if (num == null || !(0 <= num && num <= 255)) return false;
+				} catch(_) { return false; }
 			}
-
 			return !ip.contains("-");
 		}
 
-		var make = CACIAAsStr(p);
-		var cmdToExecute = '${Sys.systemName() == "Windows" ? "" : "flatpak run org.azahar_emu.Azahar ./"}buildFiles/output.$make';
-		function safeRunEmulator() {
-			if (Sys.systemName() == "Windows" || Sys.command("which flatpak > /dev/null 2>&1") == 0) {
-				execute(cmdToExecute);
-			} else {
-				trace("Flatpak/Emulator not available in this environment. Skipping auto-launch.");
-			}
-		}
-		if (validateIP()) {
-			if (make == "3dsx") {
-				if (!execute('${toDKPPath("[DKP_PATH]/tools/bin/3dslink")} -a $ip ${p.settings.linkOptions.link3dsToConsole ? "-s" : ""} buildFiles/output.3dsx') && p.settings.linkOptions.openEmuIfTransferFailed) {
-					safeRunEmulator();
+		if (validateIP() && p.settings.linkOptions.linkToConsole) {
+			var devkitpro = toDKPPath("[DKP_PATH]");
+			if (!isWiiU) {
+				var tool = Sys.systemName() == "Windows" ? '$devkitpro/tools/bin/3dslink.exe' : '$devkitpro/tools/bin/3dslink';
+				if (!execute('$tool -a $ip buildFiles/output.3dsx') && p.settings.linkOptions.openEmuIfTransferFailed) {
+					trace("Transfer failed, try running emulator manually.");
 				}
 			} else {
-				execute('curl --upload-file output.$make "ftp://$ip:5000/cia/"');
+				var tool = Sys.systemName() == "Windows" ? '$devkitpro/tools/bin/wiiload.exe' : '$devkitpro/tools/bin/wiiload';
+				Sys.putEnv("WIILOAD", 'tcp:$ip');
+				execute('$tool buildFiles/output.$ext');
 			}
 		} else {
-			safeRunEmulator();
+			trace("Skipping auto-launch. Set a valid IP in 3dsSettings.json to use 3dslink/wiiload.");
 		}
 	}
 
 	static function main() {
 		haxe.Log.trace = (v, ?infos) -> Sys.println(v);
-
-		Sys.print('\x1b[33;1m
-██    ██   ██████   ██    ██  ████████   ██████   ███████    ██████
-██    ██  ██    ██  ██    ██  ██    ██  ██    ██  ██   ███  ██    ██
-██    ██  ██    ██   ██  ██   ██              ██  ██    ██  ██
-████████  ████████    ████    ██████      █████   ██    ██   ██████
-██    ██  ██    ██   ██  ██   ██              ██  ██    ██        ██
-██    ██  ██    ██  ██    ██  ██    ██  ██    ██  ██   ███  ██    ██
-██    ██  ██    ██  ██    ██  ████████   ██████   ███████    ██████\x1b[37;1m
-============================ By Nael2xd ============================
-');
+		
+		Sys.print('\x1b[33;1m\n');
+		Sys.print('██    ██   ██████   ██    ██  ████████   ██████   ███████    ██████\n');
+		Sys.print('██    ██  ██    ██  ██    ██  ██    ██  ██    ██  ██   ███  ██    ██\n');
+		Sys.print('██    ██  ██    ██   ██  ██   ██              ██  ██    ██  ██\n');
+		Sys.print('████████  ████████    ████    ██████      █████   ██    ██   ██████\n');
+		Sys.print('██    ██  ██    ██   ██  ██   ██              ██  ██    ██        ██\n');
+		Sys.print('██    ██  ██    ██  ██    ██  ██    ██  ██    ██  ██   ███  ██    ██\n');
+		Sys.print('██    ██  ██    ██  ██    ██  ████████   ██████   ███████    ██████\x1b[37;1m\n');
+		Sys.print('======================== Unified Console Tool ========================\n');
 
 		var args = Sys.args();
 		if (args.length == 1) {
-			trace("
-\tArgs (haxelib run haxe3ds [arg]):
-\t\t[-g]: Generates a New JSON for Haxe3DS format.
-\t\t[-c]: Compiles to a compatible working 3DS application.
-\t\t[-e]: Calls arm-none-eabi-addr2line for Error Lookup.
-\t\t[-s]: Wrapper for Sending or Launching the built application.
-			");
+			trace("\n\tArgs (haxelib run haxe3ds [arg]):");
+			trace("\t\t[-g]: Generates a New JSON for Console format.");
+			trace("\t\t[-c]: Compiles to a compatible working application.");
+			trace("\t\t[-e]: Calls addr2line for Error Lookup.");
+			trace("\t\t[-s]: Wrapper for Sending the built application.");
+			trace("\t\tUse -Dnx or -D3ds for 3DS, and -Dwiiu or -Dcafe for Wii U.\n");
 			return;
 		}
 
@@ -245,251 +198,111 @@ class Haxe3DS_Tool {
 
 		cwd = Sys.getCwd().replace("\\", "/");
 		cwd = cwd.substr(0, cwd.length - 1);
+		
+		var isWiiU = args.contains("-Dwiiu") || args.contains("-Dcafe");
+
 		switch args.shift() {
 			case "-g":
-				if (FileSystem.exists('3dsSettings.json') && !askForInput("3dsSettings.json EXISTS! Are you really sure you want to overwrite it?")) {
-					return;
-				}
-
+				if (FileSystem.exists('3dsSettings.json') && !askForInput("3dsSettings.json EXISTS! Overwrite?")) return;
 				var out:Haxe3DSProject = {
 					settings: {
 						deleteTempFiles: false,
-						compileAsCIA: false,
+						compileAsPlugin: false,
 						defines: [],
-						libraries: ["haxe3ds"],
-						linkOptions: {
-							ip: "",
-							openEmuIfTransferFailed: false,
-							link3dsToConsole: true
-						},
-						optimizations: {
-							gFlag: false,
-							o2Flag: false
-						}
+						libraries: ["hxcpp"],
+						linkOptions: { ip: "192.168.1.100", linkToConsole: false, openEmuIfTransferFailed: false },
+						optimizations: { gFlag: false, o2Flag: true }
 					},
-					metadata: {
-						title: "Haxe3DS",
-						description: "Made with <3 using Haxe!",
-						author: "Author"
-					}
+					metadata: { title: "HaxeConsole", description: "Made with Haxe!", author: "Author" }
 				};
-
 				File.saveContent('3dsSettings.json', Json.stringify(out, null, "\t"));
-				trace("Generated 3DS Settings Config!");
+				trace("Generated Console Settings Config!");
 
 			case "-c":
 				function sanityCheck(info:String, func:()->Bool, ngText:String = "") {
 					var out = Sys.stdout();
 					Sys.print('\x1b[35;1m> $info...\x1b[37;1m');
-					if (func()) {
-						out.writeString("\x1b[32;1m OK. \x1b[37;1m \n");
-					} else {
-						out.writeString('\x1b[31;1m NG. $ngText \x1b[37;1m \n');
-						Sys.exit(1);
-					}
+					if (func()) { out.writeString("\x1b[32;1m OK. \x1b[37;1m \n"); } 
+					else { out.writeString('\x1b[31;1m NG. $ngText \x1b[37;1m \n'); Sys.exit(1); }
 				}
 
-				sanityCheck("Checking for Existing Custom JSON", () -> {
-					FileSystem.exists("3dsSettings.json");
-				}, 'Please generate it by calling "haxelib run haxe3ds -g" to generate a Config File.');
-	
-				sanityCheck("Checking for Custom HXCPP", () -> {
-					FileSystem.exists(".haxelib/hxcpp/git/toolchain/haxe3ds-setup.xml");
-				}, 'Please install it by using "haxelib git hxcpp https://github.com/Haxe3DS/hxcpp"');
-
+				sanityCheck("Checking for Config", () -> FileSystem.exists("3dsSettings.json"), 'Run "-g" first.');
+				
 				var project:Haxe3DSProject = null;
 				sanityCheck("Loading the Project", () -> {
-					try {
-						project = readConfig();
-						return true;
-					} catch(_) {
-						return false;
-					}
+					try { project = readConfig(); return true; } catch(_) { return false; }
 				}, 'JSON is not Formatted Correctly!');
 
-				sanityCheck("Checking if Project is Updated", () -> {
-					project.settings.optimizations != null;
-				}, 'This uses the Old Config, Please Update it using "haxelib run haxe3ds -g"');
-
 				var goodHaxeLibs:Array<String> = [];
-				var attributes:Map<String, Array<String>> = [
-				    "[HAXE3DS_FLAGS]" => [
-					    '-lHAXE3DS',
-					    '-lcitro2d',
-					    '-lcitro3d',
-					    '-lctru',
-					    '-lcwav',
-					    '-lncsnd',
-					    '-lhxcpp',
-					    '-Iexport/include',
-					    '-I' + Sys.getCwd() + '/.haxelib/haxe3ds/git/assets/include',
-					    '-I' + Sys.getCwd() + '/.haxelib/libcwav/git/include',
-					    '-I' + Sys.getCwd() + '/.haxelib/libncsnd/git/include',
-					    '-L"[DKP_PATH]/portlibs/3ds/lib"',
-					    '-I"[DKP_PATH]/portlibs/3ds/include"',
-					    '-lz'
-					]
-				];
+				var flagsKey = isWiiU ? "[HAXEWIIU_FLAGS]" : "[HAXE3DS_FLAGS]";
+				var attributes:Map<String, Array<String>> = [ flagsKey => [] ];
+
+				if (isWiiU) {
+					attributes[flagsKey] = ['-lHAXEWIIU', '-lwut', '-lcoreinit', '-lfs', '-lgx2', '-lhxcpp', '-Iexport/include', '-L"[DKP_PATH]/wut/lib"', '-I"[DKP_PATH]/wut/include"', '-I"[DKP_PATH]/wut/include/wut"'];
+				} else {
+					attributes[flagsKey] = ['-lHAXE3DS', '-lcitro2d', '-lcitro3d', '-lctru', '-lcwav', '-lncsnd', '-lhxcpp', '-Iexport/include', '-L"[DKP_PATH]/portlibs/3ds/lib"', '-I"[DKP_PATH]/portlibs/3ds/include"', '-lz'];
+				}
+
 				{
-					final mapper:Map<String, Bool> = [
-						"-O2" => project.settings.optimizations.o2Flag,
-						"-g"  => project.settings.optimizations.gFlag,
-					];
-
-					for (string => enabled in mapper.keyValueIterator()) {
-						if (enabled) {
-							attributes["[HAXE3DS_FLAGS]"].push(string);
-						}
-					}
+					final mapper:Map<String, Bool> = ["-O2" => project.settings.optimizations.o2Flag, "-g" => project.settings.optimizations.gFlag];
+					for (string => enabled in mapper.keyValueIterator()) if (enabled) attributes[flagsKey].push(string);
 				}
 
-				for (i => lib in project.settings.libraries) {
-					project.settings.libraries[i] = lib.toLowerCase();
-				}
+				for (i => lib in project.settings.libraries) project.settings.libraries[i] = lib.toLowerCase();
+				if (!project.settings.libraries.contains("hxcpp")) project.settings.libraries.insert(0, "hxcpp");
 
-				// add haxe3ds library is missing, or else it can't copy the makefile
-				if (!project.settings.libraries.contains("haxe3ds")) {
-					project.settings.libraries.insert(0, "haxe3ds");
-				}
-
-				final haxe3ds_romfspath = "assets/romfs/haxe3ds";
 				sanityCheck('Parsing all ${project.settings.libraries.length} libraries', () -> {
 					for (lib in project.settings.libraries) {
 						var path = '.haxelib/$lib';
-						if (!FileSystem.exists(path)) {
-							trace('SKIPPING LIBRARY "$lib", Library does not exist.');
-							continue;
-						}
-
-						path += '/${File.getContent('$path/.current')}';
-						if (FileSystem.exists('$path/haxe3ds.json')) {
-							var haxe3ds_lib = null;
-							try {
-								haxe3ds_lib = Json.parse(File.getContent('$path/haxe3ds.json'));
-							} catch(_) {}
-
-							if (haxe3ds_lib != null) {
-								for (key in attributes.keys()) {
-									var data:Null<Array<String>> = Reflect.getProperty(haxe3ds_lib, key);
-									if (data == null) {
-										continue;
-									}
-
-									attributes[key] = attributes[key].concat(data);
-								}
-							}
-						}
-
-						if (lib == "haxe3ds") {
-							var includePath = '$path/assets/include';
-							if (FileSystem.exists(includePath)) {
-								attributes["[HAXE3DS_FLAGS]"].push('-I' + Sys.getCwd() + '/.haxelib/haxe3ds/git/assets/include');
-							}
-						}
-
-						if (lib == "haxe3ds") {
-							try {
-								File.saveContent('$haxe3ds_romfspath/version', Json.parse(File.getContent('$path/haxelib.json')).version);
-							} catch(_) {
-								File.saveContent('$haxe3ds_romfspath/version', "?");
-							}
-						}
-
-						if (lib == "libcwav") {
-						    var includePath = '$path/include';
-						    if (FileSystem.exists(includePath)) {
-						        attributes["[HAXE3DS_FLAGS]"].push('-I' + Sys.getCwd() + '/.haxelib/libcwav/git/include');
-						    }
-						}
-
-						if (lib == "libncsnd") {
-						    var includePath = '$path/include';
-						    if (FileSystem.exists(includePath)) {
-						        attributes["[HAXE3DS_FLAGS]"].push('-I' + Sys.getCwd() + '/.haxelib/libncsnd/git/include');
-						    }
-						}
-
-						recursiveCopyFiles('$path/assets', "export");
+						if (!FileSystem.exists(path)) { trace('SKIPPING LIBRARY "$lib"'); continue; }
+						path += '/${File.getContent('$path/.current').trim()}';
+						if (FileSystem.exists('$path/assets')) recursiveCopyFiles('$path/assets', "export");
 						goodHaxeLibs.push(lib);
 					}
-
 					return true;
 				}, "What??");
 
-				for (directories in ["export", haxe3ds_romfspath, "buildFiles"]) {
-					makeDirs(directories);
-				}
-				File.saveContent('$haxe3ds_romfspath/buildDate', Date.now().toString());
-				incrementFile('$haxe3ds_romfspath/build');
-				recursiveCopyFiles("assets", "export");
+				for (directories in ["export", "assets/romfs", "buildFiles"]) makeDirs(directories);
+				if (FileSystem.exists("assets")) recursiveCopyFiles("assets", "export");
 
+				var targetDefine = isWiiU ? (project.settings.compileAsPlugin ? "-D IS_WUPS_PLUGIN" : "-D IS_WUT_RPX") : (project.settings.compileAsPlugin ? "-D IS_CIA" : "-D IS_3DSX");
+				var platformDefine = isWiiU ? "-D wiiu\n-D cafe\n-D HAXEWIIU" : "-D nx\n-D haxe3ds";
+				
 				HXML_TEMP = HXML_TEMP.replace("{1}", [for (lib in goodHaxeLibs) '-lib $lib\n-D ${lib.toUpperCase()}'].join("\n"));
-				HXML_TEMP = HXML_TEMP.replace("{2}", project.settings.compileAsCIA ? "-D IS_CIA" : "-D IS_3DSX");
+				HXML_TEMP = HXML_TEMP.replace("{2}", targetDefine);
 				for (define in project.settings.defines) {
 					HXML_TEMP += '$define\n';
-					attributes["[HAXE3DS_FLAGS]"].push(define);
+					attributes[flagsKey].push(define);
 				}
 				File.saveContent("build.hxml", HXML_TEMP);
 
-				sanityCheck("Updating haxe3ds toolchain for compiler use", () -> {
+				sanityCheck("Updating toolchain for compiler use", () -> {
 					try {
-						var toolchainPath = '.haxelib/hxcpp/${File.getContent(".haxelib/hxcpp/.current")}/toolchain';
-						var xmlContent = File.getContent('$toolchainPath/haxe3ds-setup.xml');
-
+						var toolchainPath = '.haxelib/hxcpp/${File.getContent(".haxelib/hxcpp/.current").trim()}/toolchain';
+						var xmlName = isWiiU ? "wiiu-toolchain.xml" : "haxe3ds-setup.xml";
+						var xmlContent = File.getContent('$toolchainPath/$xmlName');
 						for (key => flags in attributes.keyValueIterator()) {
 							var values = "";
-							for (flag in flags) {
-								flag = flag.replace("\\", "/").trim();
-								values += '<flag value=\'$flag\'/>\n';
-							}
+							for (flag in flags) values += '<flag value=\'${flag.replace("\\", "/").trim()}\'/>\n';
 							xmlContent = xmlContent.replace(key, values);
 						}
-						xmlContent = toDKPPath(xmlContent);
-
-						final linuxpath = '$toolchainPath/linux-toolchain.xml';
-						if (xmlContent != toDKPPath(File.getContent(linuxpath))) {
-							File.saveContent(linuxpath, xmlContent);
-							//trace("doesn't match");
-						} else {
-							//trace("matches");
-						}
-
+						File.saveContent('$toolchainPath/linux-toolchain.xml', toDKPPath(xmlContent));
 						return true;
-					} catch(error) {
-						trace(error);
-						return false;
-					}
+					} catch(error) { trace(error); return false; }
 				}, "Something went wrong!");
-
-				sanityCheck("Finishing touches before compiling application", () -> {
-					for (appInfo in ["export/resources/AppInfo", "export/Makefile"]) {
-						if (FileSystem.exists(appInfo)) {
-							var savedData = File.getContent(appInfo);
-							for (data in Reflect.fields(project.metadata)) {
-								savedData = savedData.replace('[${data.toUpperCase()}_JSON]', Reflect.getProperty(project.metadata, data));
-							}
-
-							if (appInfo == "export/Makefile") {
-								for (key => flags in attributes.keyValueIterator()) {
-									savedData = savedData.replace(key, flags.join(" "));
-								}
-								savedData = savedData.replace("[HAXE3DS_3DSLINK]", project.settings.linkOptions.link3dsToConsole ? "-DHAXE3DS_LINKTO3DS" : "");
-							}
-							File.saveContent(appInfo, toDKPPath(savedData));
-						} else if (appInfo == "export/Makefile") {
-							return false;
-						}
-					}
-
-					return true;
-				}, "Makefile is not found");
 
 				trace("Initial Setup Complete! Compiling Library");
 				sanityCheck("Compiling using the custom HXML file", () -> execute("haxe build.hxml"), "Failed to compile!");
+				
 				Sys.setCwd('export');
+				
+				var makefileName = isWiiU ? (project.settings.compileAsPlugin ? "Makefile.wups" : "Makefile.wut") : "Makefile";
+				if (FileSystem.exists('../$makefileName')) {
+					File.copy('../$makefileName', 'Makefile');
+				}
 
-				var make = project.settings.compileAsCIA ? "cia" : "";
-				sanityCheck("Finally Compiling to Working Application", () -> execute('make clean && make $make'), "Failed to compile!");
+				var makeTarget = isWiiU ? (project.settings.compileAsPlugin ? "wps" : "rpx") : (project.settings.compileAsPlugin ? "cia" : "3dsx");
+				sanityCheck("Finally Compiling to Working Application", () -> execute('make clean && make $makeTarget'), "Failed to compile!");
 
 				recursiveCopyFiles("output", "../buildFiles");
 				Sys.setCwd("..");
@@ -497,23 +310,20 @@ class Haxe3DS_Tool {
 				if (project.settings.deleteTempFiles) {
 					recursiveRMTree("export");
 					deleteFileIfExist("build.hxml");
-					deleteFileIfExist("buildFiles/output.smdh");
 				} else {
 					recursiveRMTree("export/output");
 				}
-
 				trace("Successfully Compiled!");
-				fileHandler(project);
+				fileHandler(project, isWiiU);
 
-			case "-s":
-				fileHandler();
-
+			case "-s": 
+				fileHandler(null, isWiiU);
 			case "-e":
-				execute(
-					toDKPPath(
-						'[DKP_PATH]/devkitARM/bin/arm-none-eabi-addr2line -i -p -s -f -C -r -a -e buildFiles/output.elf ${args.join(" ")}'
-					)
-				);
+				var devkitpro = toDKPPath("[DKP_PATH]");
+				var addr2line = isWiiU 
+					? (Sys.systemName() == "Windows" ? '$devkitpro/devkitPPC/bin/powerpc-eabi-addr2line.exe' : '$devkitpro/devkitPPC/bin/powerpc-eabi-addr2line')
+					: (Sys.systemName() == "Windows" ? '$devkitpro/devkitARM/bin/arm-none-eabi-addr2line.exe' : '$devkitpro/devkitARM/bin/arm-none-eabi-addr2line');
+				execute('$addr2line -i -p -s -f -C -r -a -e buildFiles/output.elf ${args.join(" ")}');
 		}
 	}
 }
