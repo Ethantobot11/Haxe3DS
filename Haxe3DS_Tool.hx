@@ -249,6 +249,12 @@ class Haxe3DS_Tool {
 				
 				HXML_TEMP = HXML_TEMP.replace("{1}", [for (lib in goodHaxeLibs) if (lib != "hxcpp") '-lib $lib\n-D ${lib.toUpperCase()}'].join("\n"));
 				HXML_TEMP = HXML_TEMP.replace("{2}", targetDefine + "\n" + platformDefine);
+				
+				if (isWiiU) {
+					HXML_TEMP = HXML_TEMP.replace("-D HAXE3DS\n", "");
+					HXML_TEMP = HXML_TEMP.replace("-D HAXE3DS", "");
+				}
+				
 				for (define in project.settings.defines) {
 					HXML_TEMP += '$define\n';
 					attributes[flagsKey].push(define);
