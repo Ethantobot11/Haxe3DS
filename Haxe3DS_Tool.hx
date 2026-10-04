@@ -37,8 +37,8 @@ typedef Haxe3DSProject = {
 }
 
 class Haxe3DS_Tool {
-	static var cwd = "";
-	static var HXML_TEMP = "-cp source
+static var cwd = "";
+static var HXML_TEMP = "-cp source
 -main Main
 
 # libs
@@ -168,27 +168,25 @@ class Haxe3DS_Tool {
 
 	static function main() {
 		haxe.Log.trace = (v, ?infos) -> Sys.println(v);
-		Sys.print('\x1b[33;1m
-██    ██   ██████   ██    ██  ████████   ██████   ███████    ██████
-██    ██  ██    ██  ██    ██  ██    ██  ██    ██  ██   ███  ██    ██
-██    ██  ██    ██   ██  ██   ██              ██  ██    ██  ██
-████████  ████████    ████    ██████      █████   ██    ██   ██████
-██    ██  ██    ██   ██  ██   ██              ██  ██    ██        ██
-██    ██  ██    ██  ██    ██  ██    ██  ██    ██  ██   ███  ██    ██
-██    ██  ██    ██  ██    ██  ████████   ██████   ███████    ██████\x1b[37;1m
-======================== Unified Console Tool ========================
-');
+		
+		Sys.print('\x1b[33;1m\n');
+		Sys.print('██    ██   ██████   ██    ██  ████████   ██████   ███████    ██████\n');
+		Sys.print('██    ██  ██    ██  ██    ██  ██    ██  ██    ██  ██   ███  ██    ██\n');
+		Sys.print('██    ██  ██    ██   ██  ██   ██              ██  ██    ██  ██\n');
+		Sys.print('████████  ████████    ████    ██████      █████   ██    ██   ██████\n');
+		Sys.print('██    ██  ██    ██   ██  ██   ██              ██  ██    ██        ██\n');
+		Sys.print('██    ██  ██    ██  ██    ██  ██    ██  ██    ██  ██   ███  ██    ██\n');
+		Sys.print('██    ██  ██    ██  ██    ██  ████████   ██████   ███████    ██████\x1b[37;1m\n');
+		Sys.print('======================== Unified Console Tool ========================\n');
 
 		var args = Sys.args();
 		if (args.length == 1) {
-			trace("
-\tArgs (haxelib run haxe3ds [arg]):
-\t\t[-g]: Generates a New JSON for Console format.
-\t\t[-c]: Compiles to a compatible working application.
-\t\t[-e]: Calls addr2line for Error Lookup.
-\t\t[-s]: Wrapper for Sending the built application.
-\t\tUse -Dnx or -D3ds for 3DS, and -Dwiiu or -Dcafe for Wii U.
-			");
+			trace("\n\tArgs (haxelib run haxe3ds [arg]):");
+			trace("\t\t[-g]: Generates a New JSON for Console format.");
+			trace("\t\t[-c]: Compiles to a compatible working application.");
+			trace("\t\t[-e]: Calls addr2line for Error Lookup.");
+			trace("\t\t[-s]: Wrapper for Sending the built application.");
+			trace("\t\tUse -Dnx or -D3ds for 3DS, and -Dwiiu or -Dcafe for Wii U.\n");
 			return;
 		}
 
@@ -270,7 +268,7 @@ class Haxe3DS_Tool {
 				var targetDefine = isWiiU ? (project.settings.compileAsPlugin ? "-D IS_WUPS_PLUGIN" : "-D IS_WUT_RPX") : (project.settings.compileAsPlugin ? "-D IS_CIA" : "-D IS_3DSX");
 				var platformDefine = isWiiU ? "-D wiiu\n-D cafe\n-D HAXEWIIU" : "-D nx\n-D haxe3ds";
 				
-				HXML_TEMP = HXML_TEMP.replace("{1}", platformDefine + "\n" + [for (lib in goodHaxeLibs) '-lib $lib\n-D ${lib.toUpperCase()}'].join("\n"));
+				HXML_TEMP = HXML_TEMP.replace("{1}", [for (lib in goodHaxeLibs) '-lib $lib\n-D ${lib.toUpperCase()}'].join("\n"));
 				HXML_TEMP = HXML_TEMP.replace("{2}", targetDefine);
 				for (define in project.settings.defines) {
 					HXML_TEMP += '$define\n';
@@ -297,7 +295,7 @@ class Haxe3DS_Tool {
 				sanityCheck("Compiling using the custom HXML file", () -> execute("haxe build.hxml"), "Failed to compile!");
 				
 				Sys.setCwd('export');
-
+				
 				var makefileName = isWiiU ? (project.settings.compileAsPlugin ? "Makefile.wups" : "Makefile.wut") : "Makefile";
 				if (FileSystem.exists('../$makefileName')) {
 					File.copy('../$makefileName', 'Makefile');
