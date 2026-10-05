@@ -7,7 +7,7 @@ import cpp.UInt8;
 @:cppInclude("3ds.h")
 #else
 @:cppInclude("wut.h")
-@:cppInclude("coreinit/system.h")
+@:cppInclude("coreinit/time.h")
 #end
 class OS {
 	public static var time(get, null):UInt64;
