@@ -94,6 +94,44 @@ class Haxe3DS_Tool {
 		return project.settings.compileAsPlugin ? "cia" : "3dsx";
 	}
 
+	static function fileHandler(p:Haxe3DSProject = null, isWiiU:Bool = false) {
+		if (p == null) p = readConfig();
+		var ext = getTargetExt(p, isWiiU);
+		if (!FileSystem.exists('buildFiles/output.$ext')) {
+			trace("Application needs to be built first");
+			return;
+		}
+
+		var ip = p.settings.linkOptions.ip;
+		function validateIP():Bool {
+			var dots = ip.split(".");
+			if (dots.length != 4) return false;
+			for (number in dots) {
+				try {
+					var num = Std.parseInt(number);
+					if (num == null || !(0 <= num && num <= 255)) return false;
+				} catch(_) { return false; }
+			}
+			return !ip.contains("-");
+		}
+
+		if (validateIP() && p.settings.linkOptions.linkToConsole) {
+			var devkitpro = toDKPPath("[DKP_PATH]");
+			if (!isWiiU) {
+				var tool = Sys.systemName() == "Windows" ? '$devkitpro/tools/bin/3dslink.exe' : '$devkitpro/tools/bin/3dslink';
+				if (!execute('$tool -a $ip buildFiles/output.3dsx') && p.settings.linkOptions.openEmuIfTransferFailed) {
+					trace("Transfer failed, try running emulator manually.");
+				}
+			} else {
+				var tool = Sys.systemName() == "Windows" ? '$devkitpro/tools/bin/wiiload.exe' : '$devkitpro/tools/bin/wiiload';
+				Sys.putEnv("WIILOAD", 'tcp:$ip');
+				execute('$tool buildFiles/output.$ext');
+			}
+		} else {
+			trace("Skipping auto-launch. Set a valid IP in 3dsSettings.json to use 3dslink/wiiload.");
+		}
+	}
+
 	static function buildWUP(project:Haxe3DSProject, titleId:String = "0005000010100000"):Bool {
 		var wupDir = "wup_build";
 		makeDirs('$wupDir/code');
@@ -313,7 +351,8 @@ class Haxe3DS_Tool {
 				trace("Successfully Compiled!");
 				fileHandler(project, isWiiU);
 
-			case "-s": fileHandler(null, isWiiU);
+			case "-s": 
+				fileHandler(null, isWiiU);
 			case "-e":
 				var devkitpro = toDKPPath("[DKP_PATH]");
 				var addr2line = isWiiU 
