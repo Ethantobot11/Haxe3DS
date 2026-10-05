@@ -2,8 +2,9 @@ package haxe3ds.services;
 
 import haxe3ds.types.Result;
 
+#if HAXE3DS
 @:cppInclude("3ds.h")
-@:cppInclude("coreinit.h")
+#end
 class RomFS {
 	public static inline function init():Result {
 		#if HAXE3DS
