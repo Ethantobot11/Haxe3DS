@@ -217,7 +217,16 @@ class Haxe3DS_Tool {
 				var attributes:Map<String, Array<String>> = [ flagsKey => [] ];
 
 				if (isWiiU) {
-					attributes[flagsKey] = ['-lHAXEWIIU', '-lwut', '-lcoreinit', '-lfs', '-lgx2', '-lhxcpp', '-Iexport/include', '-L"[DKP_PATH]/wut/lib"', '-I"[DKP_PATH]/wut/include"', '-I"[DKP_PATH]/wut/include/wut"'];
+					attributes[flagsKey] = [
+				        '-lHAXEWIIU', '-lwut', '-lcoreinit', '-lfs', '-lgx2', '-lhxcpp', 
+				        '-Iexport/include', 
+				        '-L"[DKP_PATH]/wut/lib"', 
+				        '-I"[DKP_PATH]/wut/include"', 
+				        '-I"[DKP_PATH]/wut/include/wut"',
+				        '-L"[DKP_PATH]/portlibs/wiiu/lib"', 
+				        '-I"[DKP_PATH]/portlibs/wiiu/include"',
+				        '-lSDL2', '-lSDL2_image', '-lSDL2_ttf'
+				    ];
 				} else {
 					attributes[flagsKey] = ['-lHAXE3DS', '-lcitro2d', '-lcitro3d', '-lctru', '-lcwav', '-lncsnd', '-lhxcpp', '-Iexport/include', '-L"[DKP_PATH]/portlibs/3ds/lib"', '-I"[DKP_PATH]/portlibs/3ds/include"', '-lz'];
 				}
