@@ -5,11 +5,11 @@ import cpp.UInt64;
 import haxe3ds.types.Result;
 
 #if HAXE3DS
-@:cppInclude("3ds.h")
+@:include("3ds.h")
 #else
-@:cppInclude("vpad/input.h")
-@:cppInclude("proc_ui/procui.h")
-@:cppInclude("coreinit/exit.h")
+@:include("vpad/input.h")
+@:include("proc_ui/procui.h")
+@:include("coreinit/exit.h")
 #end
 class APT {
 	public static var isNew3DS(get, null):Bool;
@@ -66,7 +66,7 @@ class APT {
 		#end
 		#else
 		HID.scanInput();
-		return untyped __cpp__('ProcUIProcessMessages(true) == PROCUI_STATUS_RUNNING');
+		return untyped __cpp__('ProcUIProcessMessages(true) != PROCUI_STATUS_EXITING');
 		#end
 	}
 
@@ -74,7 +74,7 @@ class APT {
 		#if HAXE3DS
 		return untyped __cpp__('aptIsActive()');
 		#else
-		return untyped __cpp__('ProcUIProcessMessages(false) == PROCUI_STATUS_RUNNING');
+		return untyped __cpp__('ProcUIProcessMessages(false) != PROCUI_STATUS_EXITING');
 		#end
 	}
 }
