@@ -39,11 +39,10 @@ typedef AccelVector = { var x:Int; var y:Int; var z:Int; }
 typedef AngularRate = { var x:Int; var y:Int; var z:Int; }
 
 #if !wiiu
-@:include("3ds.h")
+@:headerInclude("3ds.h")
 #else
-// MUST use @:include, NOT @:cppInclude, for hxcpp to generate the #include directives
-@:include("vpad/input.h")
-@:include("vpadbase/base.h")
+@:headerInclude("vpad/input.h")
+@:headerInclude("vpadbase/base.h")
 #end
 class HID {
 	public static inline function scanInput() {
