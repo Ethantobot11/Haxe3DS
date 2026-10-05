@@ -39,10 +39,10 @@ typedef AccelVector = { var x:Int; var y:Int; var z:Int; }
 typedef AngularRate = { var x:Int; var y:Int; var z:Int; }
 
 #if HAXE3DS
-@:cppInclude("3ds.h")
+@:include("3ds.h")
 #else
-@:cppInclude("vpad/input.h")
-@:cppInclude("vpadbase/base.h")
+@:include("vpad/input.h")
+@:include("vpadbase/base.h")
 #end
 class HID {
 	public static inline function scanInput() {
