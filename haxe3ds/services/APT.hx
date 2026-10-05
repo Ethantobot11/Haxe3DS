@@ -5,11 +5,11 @@ import cpp.UInt64;
 import haxe3ds.types.Result;
 
 #if !wiiu
-@:include("3ds.h")
+@:headerInclude("3ds.h")
 #else
-@:include("vpad/input.h")
-@:include("proc_ui/procui.h")
-@:include("coreinit/exit.h")
+@:headerInclude("vpad/input.h")
+@:headerInclude("proc_ui/procui.h")
+@:headerInclude("coreinit/exit.h")
 #end
 
 class APT {
