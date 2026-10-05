@@ -6,7 +6,7 @@ import cpp.UInt8;
 #if HAXE3DS
 @:cppInclude("3ds.h")
 #else
-@:cppInclude("coreinit/time.h")
+@:cppInclude("wut.h")
 @:cppInclude("coreinit/system.h")
 #end
 class OS {
