@@ -2,38 +2,23 @@ package haxe3ds.services;
 
 import haxe3ds.types.Result;
 
-/**
- * NS (Nintendo Shell) service.
- */
+#if HAXE3DS
 @:cppInclude("3ds.h")
+#end
 class NS {
-	/**
-	 * Initializes NS.
-	 */
 	public static inline function init():Result {
-		return untyped __cpp__('nsInit');
+		#if HAXE3DS return untyped __cpp__('nsInit()'); #else return 0; #end
 	}
 
-	/**
-	 * Exits NS.
-	 */
 	public static inline function exit() {
-		return untyped __cpp__('nsExit()');
+		#if HAXE3DS untyped __cpp__('nsExit()'); #end
 	}
 
-	/**
-	 * Reboots the system
-	 */
 	public static inline function rebootSystem():Result {
-		return untyped __cpp__('NS_RebootSystem()');
+		#if HAXE3DS return untyped __cpp__('NS_RebootSystem()'); #else return 0; #end
 	}
 
-	/**
-	 * If called, force terminates the application and throws a popup being "An error has occurred, forcing the software to close. The system will now restart."
-	 * 
-	 * Wrapper of `PMApp:TerminateTitle`
-	 */
 	public static inline function terminate():Result {
-		return untyped __cpp__('NS_TerminateTitle()');
+		#if HAXE3DS return untyped __cpp__('NS_TerminateTitle()'); #else Sys.exit(0); return 0; #end
 	}
 }

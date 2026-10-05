@@ -1,27 +1,22 @@
 package haxe3ds.services;
 
+#if HAXE3DS
 @:cppInclude("3ds.h")
+#end
 class NWMExt {
-	/**
-	 * Initializes NWMEXT.
-	 */
 	@:native("nwmExtInit")
-	public static function init() {};
+	public static function init() {
+		#if HAXE3DS #end
+	}
 
-	/**
-	 * Exits NWMEXT.
-	 */
 	@:native("nwmExtExit")
-	public static function exit() {};
+	public static function exit() {
+		#if HAXE3DS #end
+	}
 
-	/**
-	 * Variable property for settings wireless.
-	 * 
-	 * `Set` will call `NWMEXT_ControlWirelessEnabled` and sets it and returns the variable.
-	 */
 	public static var wireless(null, set):Bool;
 	static function set_wireless(wireless):Bool {
-		untyped __cpp__('NWMEXT_ControlWirelessEnabled(wireless)');
+		#if HAXE3DS untyped __cpp__('NWMEXT_ControlWirelessEnabled(wireless)'); #end
 		return wireless;
 	}
 }

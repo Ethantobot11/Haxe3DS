@@ -8,429 +8,130 @@ import cpp.UInt8;
 import cpp.UInt32;
 import cpp.UInt64;
 
-/**
- * Documentation on the relationship that has happened.
- */
-enum FRDRelationship {
-	/**
-	 * The target has been added locally and on the server, but is only "provisionally registered." The target has not added you as a friend.
-	 */
-	NOT_REGISTERED;
-
-	/**
-	 * The target has been added locally and on the server and is fully registered: the target has also added you as a friend. 
-	 */
-	REGISTERED;
-
-	/**
-	 * No relationship between you and the target has been found: neither you nor the target have added each other. 
-	 */
-	NOT_FOUND;
-
-	/**
-	 * The relationship has been deleted: the target has deleted your friend card. 
-	 */
-	DELETED;
-
-	/**
-	 * The target has been added locally: you were not online when you added the target. (presumably only happens when the "Local" method of adding a friend is used. When the system connects to the internet, a background task runs to register this relationship on the friends server.) 
-	 */
-	LOCAL_ADDED;
-
-	/**
-	 * Given integer is unknown, likely mismatched value.
-	 */
-	UNKNOWN;
-}
-
-/**
- * Preference from your friend list.
- */
-typedef FRDPreference = {
-	/**
-	 * Determines whether friends are notified of the current user's online status.
-	 */
-	var publicMode:Bool;
-
-	/**
-	 * Determines whether friends are notified of the application that the current user is running.
-	 */
-	var showGameName:Bool;
-
-	/**
-	 * Determines whether to display the current user's game history.
-	 */
-	var showPlayedGame:Bool;
-}
-
-/**
- * The profile type-definition.
- */
-typedef FRDProfile = {
-	/**
-	 * The region code for the hardware.
-	 */
-	var region:UInt8;
-
-	/**
-	 * Country Code.
-	 */
-	var country:UInt8;
-
-	/**
-	 * Area Code.
-	 */
-	var area:UInt8;
-
-	/**
-	 * Language Code.
-	 */
-	var language:UInt8;
-}
-
-/**
- * The current friend's details.
- * 
- * @since 1.4.0
- */
+enum FRDRelationship { NOT_REGISTERED; REGISTERED; NOT_FOUND; DELETED; LOCAL_ADDED; UNKNOWN; }
+typedef FRDPreference = { var publicMode:Bool; var showGameName:Bool; var showPlayedGame:Bool; }
+typedef FRDProfile = { var region:UInt8; var country:UInt8; var area:UInt8; var language:UInt8; }
 typedef FRDFriendDetail = {
-	/**
-	 * The friend's current comment specified from the friend list.
-	 * 
-	 * Origin was in `*u16[10]` which was converted to a string.
-	 */
-	var comment:String;
-
-	/**
-	 * The current display name specified from their friend card in the friend list.
-	 * 
-	 * Origin was in `*u16[10]` which was converted to a string.
-	 */
-	var displayName:String;
-
-	/**
-	 * Listing of the current friend's profile, including their region, language, area and country.
-	 */
-	var profile:FRDProfile;
-
-	/**
-	 * Current Added Timestamp from your friend's profile.
-	 */
-	var addedTimestamp:NanoTime;
-
-	/**
-	 * The Principal ID Tied to their friend's account.
-	 */
-	var principalID:UInt32;
-
-	/**
-	 * Whether or not his/their mii is a male.
-	 */
-	var male:Bool;
-
-	/**
-	 * The friend's current relationship.
-	 * 
-	 * @see `FRDRelationship` struct.
-	 */
-	var relationship:FRDRelationship;
-
-	/**
-	 * The friend's favorite game in title id.
-	 */
-	var favoriteGameTID:UInt64;
+	var comment:String; var displayName:String; var profile:FRDProfile; var addedTimestamp:NanoTime;
+	var principalID:UInt32; var male:Bool; var relationship:FRDRelationship; var favoriteGameTID:UInt64;
 }
-
-/**
- * Type of the notification that was triggered by the friend list.
- * 
- * @since 1.5.0
- */
 enum abstract FRDNotifTypes(Int) {
-	/**
-	 * The console went online.
-	 */
-	var SELF_ONLINE = 1;
-
-	/**
-	 * The console went offline.
-	 */
-	var SELF_OFFLINE;
-
-	/**
-	 * A friend is now present (went online). 
-	 */
-	var FRIEND_ONLINE;
-
-	/**
-	 * A friend changed their presence, and the current system's JoinGameID is the same as their new or old JoinGameID.
-	 */
-	var FRIEND_PRESENCE_CHANGED;
-
-	/**
-	 * A friend changed their Mii.
-	 */
-	var FRIEND_MII_CHANGED;
-
-	/**
-	 * A friend changed their Profile.
-	 * 
-	 * @see FRDProfile Struct.
-	 */
-	var FRIEND_PROFILE_CHANGED;
-
-	/**
-	 * A friend is no longer present (went offline).
-	 */
-	var FRIEND_OFFLINE;
-
-	/**
-	 * A friend has added you back as a friend (if you had added them before as a "provisionally registered" friend).
-	 */
-	var FRIEND_REGISTERED;
-
-	/**
-	 * A friend sent you an invitation, and the current system's JoinGameID matches that of the friend.
-	 */
-	var FRIEND_GOT_INVITED;
+	var SELF_ONLINE = 1; var SELF_OFFLINE; var FRIEND_ONLINE; var FRIEND_PRESENCE_CHANGED;
+	var FRIEND_MII_CHANGED; var FRIEND_PROFILE_CHANGED; var FRIEND_OFFLINE; var FRIEND_REGISTERED; var FRIEND_GOT_INVITED;
 }
 
-/**
- * Friend Services.
- * 
- * @since 1.2.0
- */
+#if HAXE3DS
 @:cppFileCode('
 #include "haxe3ds_Utils.h"
-
-Handle frd_Handle;
-bool   frd_ShouldExit = false;
-
+Handle frd_Handle; bool frd_ShouldExit = false;
 Dynamic fiToFD(FriendInfo& f) {
 	using r = haxe3ds::services::FRDRelationship_obj;
 	haxe3ds::services::FRDRelationship relation = null();
-
 	switch(f.relationship) {
-		case 0: {relation = r::NOT_REGISTERED_dyn(); break;}
-		case 1: {relation = r::REGISTERED_dyn(); break;}
-		case 2: {relation = r::NOT_FOUND_dyn(); break;}
-		case 3: {relation = r::DELETED_dyn(); break;}
-		case 4: {relation = r::LOCAL_ADDED_dyn(); break;}
-		default:{relation = r::UNKNOWN_dyn(); break;}
+		case 0: {relation = r::NOT_REGISTERED_dyn(); break;} case 1: {relation = r::REGISTERED_dyn(); break;}
+		case 2: {relation = r::NOT_FOUND_dyn(); break;} case 3: {relation = r::DELETED_dyn(); break;}
+		case 4: {relation = r::LOCAL_ADDED_dyn(); break;} default:{relation = r::UNKNOWN_dyn(); break;}
 	};
-
-	Dynamic temp = Dynamic(hx::Anon_obj::Create(4)
-		->setFixed(0,String("region"),f.friendProfile.profile.region)
-		->setFixed(1,String("country"),f.friendProfile.profile.country)
-		->setFixed(2,String("area"),f.friendProfile.profile.area)
-		->setFixed(3,String("language"),f.friendProfile.profile.language));
-
-	return Dynamic(hx::Anon_obj::Create(8)
-		->setFixed(0,String("comment"),u16ToString(f.friendProfile.personalMessage))
-		->setFixed(1,String("favoriteGameTID"),f.friendProfile.favoriteGame.titleId)
-		->setFixed(2,String("principalID"),(int)f.friendKey.principalId)
-		->setFixed(3,String("addedTimestamp"),f.addedTimestamp)
-		->setFixed(4,String("profile"),temp)
-		->setFixed(5,String("relationship"),relation)
-		->setFixed(6,String("displayName"),u16ToString(f.screenName))
-		->setFixed(7,String("male"),!f.mii.miiData.mii_details.sex));
+	Dynamic temp = Dynamic(hx::Anon_obj::Create(4)->setFixed(0,String("region"),f.friendProfile.profile.region)->setFixed(1,String("country"),f.friendProfile.profile.country)->setFixed(2,String("area"),f.friendProfile.profile.area)->setFixed(3,String("language"),f.friendProfile.profile.language));
+	return Dynamic(hx::Anon_obj::Create(8)->setFixed(0,String("comment"),u16ToString(f.friendProfile.personalMessage))->setFixed(1,String("favoriteGameTID"),f.friendProfile.favoriteGame.titleId)->setFixed(2,String("principalID"),(int)f.friendKey.principalId)->setFixed(3,String("addedTimestamp"),f.addedTimestamp)->setFixed(4,String("profile"),temp)->setFixed(5,String("relationship"),relation)->setFixed(6,String("displayName"),u16ToString(f.screenName))->setFixed(7,String("male"),!f.mii.miiData.mii_details.sex));
 }
-
 void NotificationThread() {
-	using f = haxe3ds::services::FRDRelationship_obj;
 	while (!frd_ShouldExit) {
 		if (svcWaitSynchronization(frd_Handle, 1e9) == 0) {
 			auto caller = haxe3ds::services::FRD_obj::notifCallback;
-			if (caller == null()) {
-				continue;
-			}
-
-			NotificationEvent event;
-			FriendInfo f;
-			u32 totalNotifs;
-
+			if (caller == null()) continue;
+			NotificationEvent event; FriendInfo f; u32 totalNotifs;
 			if R_FAILED(FRD_GetEventNotification(&event, 1, &totalNotifs)) continue;
 			if R_FAILED(FRD_GetFriendInfo(&f, &event.sender, 1, false, false)) continue;
-
 			caller->callEvents(Dynamic(hx::Anon_obj::Create(2)->setFixed(0,String("types"),event.type)->setFixed(1,String("detail"),fiToFD(f))));
 		}
 	}
 }')
+#end
 class FRD {
-	/**
-	 * Variable that checks if the user is logged into Nintendo/Pretendo Network.
-	 */
 	public static var loggedIn(get, null):Bool;
 	static function get_loggedIn():Bool {
-		return untyped __cpp__('API_GETTER(bool, FRD_HasLoggedIn, 0)');
+		#if HAXE3DS return untyped __cpp__('API_GETTER(bool, FRD_HasLoggedIn, 0)'); #else return false; #end
 	}
 
-	/**
-	 * Variable that checks if the user is connected to the internet and connected to their servers.
-	 */
 	public static var isOnline(get, null):Bool;
 	static function get_isOnline():Bool {
-		return untyped __cpp__('API_GETTER(bool, FRD_IsOnline, 0)');
+		#if HAXE3DS return untyped __cpp__('API_GETTER(bool, FRD_IsOnline, 0)'); #else return false; #end
 	}
 
-	/**
-	 * The difference between the Server Time and the System Time in Nanoseconds. This calculates everytime the System logs in to the server.
-	 */
 	public static var serverTime(get, null):NanoTime;
 	static function get_serverTime():NanoTime {
-		return untyped __cpp__('API_GETTER(u64, FRD_GetServerTimeDifference, 0)');
+		#if HAXE3DS return untyped __cpp__('API_GETTER(u64, FRD_GetServerTimeDifference, 0)'); #else return 0; #end
 	}
 
-	/**
-	 * Variable for this ID of the user's current local account.
-	 */
 	public static var localAccountId(get, null):UInt8;
 	static function get_localAccountId():UInt8 {
-		return untyped __cpp__('API_GETTER(u8, FRD_GetMyLocalAccountId, 0)');
+		#if HAXE3DS return untyped __cpp__('API_GETTER(u8, FRD_GetMyLocalAccountId, 0)'); #else return 0; #end
 	}
 
-	/**
-	 * Variable for this user's profile.
-	 */
 	public static var myProfile(get, null):Null<FRDFriendDetail>;
 	static function get_myProfile():Null<FRDFriendDetail> {
-		untyped __cpp__('
-			FriendKey key = API_GETTER(FriendKey, FRD_GetMyFriendKey, 0);
-			FriendInfo f;
-			if (R_FAILED(FRD_GetFriendInfo(&f, &key, 1, false, false))) return null();
-		');
-
+		#if HAXE3DS
+		untyped __cpp__('FriendKey key = API_GETTER(FriendKey, FRD_GetMyFriendKey, 0); FriendInfo f; if (R_FAILED(FRD_GetFriendInfo(&f, &key, 1, false, false))) return null();');
 		return untyped __cpp__('fiToFD(f)');
+		#else return null; #end
 	}
 
-	/**
-	 * Callback handler for notifications called from friends.
-	 * 
-	 * ### Args:
-	 * - `FRDFriendDetail` - The details of the friend that triggered this notification.
-	 * - `FRDNotifTypes` - Type of notification it is caused.
-	 * 
-	 * @since 1.5.0
-	 */
 	public static var notifCallback = new Event<{detail:FRDFriendDetail, types:FRDNotifTypes}>();
 
-	/**
-	 * Initializes friend services.
-	 * @param enableNotifications Whether or not you want to enable for `notifCallback`
-	 */
 	public static function init(enableNotifications:Bool = true):Result {
+		#if HAXE3DS
 		var res:Result = 0;
-		untyped __cpp__('
-			res = frdInit(false);
-
-			if (R_SUCCEEDED(res) && enableNotifications) {
-				if R_FAILED(res = svcCreateEvent(&frd_Handle, RESET_ONESHOT)) return res;
-				if R_FAILED(res = FRD_AttachToEventNotification(frd_Handle)) return res;
-				{0};
-			} // {1}
-		', Thread.create(() -> untyped __cpp__('NotificationThread()')), UNKNOWN);
-
+		untyped __cpp__('res = frdInit(false); if (R_SUCCEEDED(res) && enableNotifications) { if R_FAILED(res = svcCreateEvent(&frd_Handle, RESET_ONESHOT)) return res; if R_FAILED(res = FRD_AttachToEventNotification(frd_Handle)) return res; {0}; }', Thread.create(() -> untyped __cpp__('NotificationThread()')));
 		return res;
+		#else return 0; #end
 	}
 
-	/**
-	 * Changes the Friend List's presence that is present in the Friend List.
-	 * @param textToUse Text to set as, maximum 127 characters and 1 new line (multiple will be cut by `FRD_UpdateGameModeDescription`).
-	 * @return Result code of Whether something from the services went wrong.
-	 */
 	public static function updatePresence(textToUse:String):Result {
-		untyped __cpp__('
-			FriendGameModeDescription desc = { 0};
-			TRANSFER(textToUse.c_str(), desc);
-		');
+		#if HAXE3DS
+		untyped __cpp__('FriendGameModeDescription desc = { 0}; TRANSFER(textToUse.c_str(), desc);');
 		return untyped __cpp__('FRD_UpdateGameModeDescription(&desc)');
+		#else return 0; #end
 	}
 
-	/**
-	 * Updates your own friend comment with the string specified. (Just to know please don't try to bypass profanity, maybe you'll get banned!)
-	 * @param textToUse Text to use, Maximum 16 characters.
-	 * @return Result code of Whether something went wrong.
-	 * @since 1.4.0
-	 */
 	public static function updateComment(textToUse:String):Result {
-		untyped __cpp__('
-			FriendComment desc = { 0};
-			TRANSFER(textToUse.c_str(), desc)
-		');
+		#if HAXE3DS
+		untyped __cpp__('FriendComment desc = { 0}; TRANSFER(textToUse.c_str(), desc)');
 		return untyped __cpp__('FRDA_UpdateComment(&desc)');
+		#else return 0; #end
 	}
 
-	/**
-	 * Configures the current client session to allow processing of internal friend-services tasks during sleep mode.
-	 */
 	public static var halfAwake(null, set):Bool;
 	static function set_halfAwake(halfAwake:Bool):Bool {
-		untyped __cpp__('FRD_AllowHalfAwake(halfAwake)');
+		#if HAXE3DS untyped __cpp__('FRD_AllowHalfAwake(halfAwake)'); #end
 		return halfAwake;
 	}
 
-	/**
-	 * Gets the whole friend profile specified.
-	 * @return Array of typedef `FRDFriendDetail`, will return 0 if one of the FRD functions failed, or has 0 friends total.
-	 * @since 1.4.0
-	 */
 	public static function getFriendsProfile():Null<Array<FRDFriendDetail>> {
+		#if HAXE3DS
 		var out:Array<FRDFriendDetail> = [];
-
-		untyped __cpp__('
-			FriendKey list[100] = {};
-			FriendInfo prof[100] = {};
-
-			u32 l = 0;
-			if R_FAILED(FRD_GetFriendKeyList(list, &l, 0, 100)) return null();
-			if R_FAILED(FRD_GetFriendInfo(prof, list, l, false, false)) return null();
-		');
-
-		for (i in 0...untyped __cpp__('l')) {
-			out.push(untyped __cpp__('fiToFD(prof[{0}])', i));
-		}
-
+		untyped __cpp__('FriendKey list[100] = {}; FriendInfo prof[100] = {}; u32 l = 0; if R_FAILED(FRD_GetFriendKeyList(list, &l, 0, 100)) return null(); if R_FAILED(FRD_GetFriendInfo(prof, list, l, false, false)) return null();');
+		for (i in 0...untyped __cpp__('l')) out.push(untyped __cpp__('fiToFD(prof[{0}])', i));
 		return out;
+		#else return []; #end
 	}
 
-	/**
-	 * Variable about your current User's Preference about yourself.
-	 * 
-	 * This was randomly removed a while ago, its now back.
-	 * 
-	 * @since 1.9.0
-	 */
 	public static var preference(get, set):Null<FRDPreference>;
-
 	static function get_preference():Null<FRDPreference> {
+		#if HAXE3DS
 		var publicP = false, gameName = false, showPlayed = false;
-
 		untyped __cpp__('RETURN_NULL_IF_FAILED(FRD_GetMyPreference(&publicP, &gameName, &showPlayed))');
-		return {
-			publicMode: publicP,
-			showPlayedGame: showPlayed,
-			showGameName: gameName
-		}
+		return { publicMode: publicP, showPlayedGame: showPlayed, showGameName: gameName };
+		#else return null; #end
 	}
-
 	static function set_preference(preference):Null<FRDPreference> {
-		if (preference == null) {
-			return null;
-		}
-
-		untyped __cpp__('RETURN_NULL_IF_FAILED(FRDA_UpdatePreference({0}, {1}, {2}))', preference.publicMode, preference.showGameName, preference.showPlayedGame);
+		if (preference == null) return null;
+		#if HAXE3DS untyped __cpp__('RETURN_NULL_IF_FAILED(FRDA_UpdatePreference({0}, {1}, {2}))', preference.publicMode, preference.showGameName, preference.showPlayedGame); #end
 		return preference;
 	}
 
-	/**
-	 * Closes handle and Exits friend services.
-	 */
 	public static function exit() {
 		notifCallback.clear();
-		untyped __cpp__('
-			frd_ShouldExit = true;
-			svcCloseHandle(frd_Handle);
-			frdExit()
-		');
+		#if HAXE3DS untyped __cpp__('frd_ShouldExit = true; svcCloseHandle(frd_Handle); frdExit()'); #end
 	}
 }

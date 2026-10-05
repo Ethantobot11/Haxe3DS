@@ -2,12 +2,12 @@ package haxe3ds.types;
 
 import cpp.UInt32;
 
+#if HAXE3DS
 /**
  * The result code that was provided by the application, and gets the level, summary, module and description.
  * 
  * @since 1.4.0
  */
-// THE ENTIRE cppFileCode THING WAS TAKEN FROM https://github.com/Steveice10/FBI/blob/ec259153e25fc77ee999b8caadac7e73d2e5e41a/source/core/ui/error.c#L757
 @:cppFileCode('
 #include <3ds.h>
 const char* levelToString(u32 res) {
@@ -280,16 +280,10 @@ const char* descriptionToString(u32 res) {
 	}
 }')
 enum abstract Result(UInt32) from UInt32 to UInt32 {
-	/**
-	 * Result variable to check if the operation function was deemed a success and not a failure.
-	 */
 	public inline function isSuccess():Bool {
 		return this >= 0;
 	}
 
-	/**
-	 * Result variable to check if the operation function was deemed a failure and not a success.
-	 */
 	public inline function isFail():Bool {
 		return this < 0;
 	}
@@ -314,19 +308,6 @@ enum abstract Result(UInt32) from UInt32 to UInt32 {
 		return untyped __cpp__('R_DESCRIPTION(this1)');
 	}
 
-	/**
-	 * Converts the result code to a formatted string.
-	 * 
-	 * Example:
-	 * ```
-	 * // 0xD8E007F7 becomes this:
-	 * "Result code: 0xD8E007F7
-	 * Level: Permanent (27)
-	 * Summary: Invalid argument (7)
-	 * Module: Kernel (1)
-	 * Desc: Invalid handle (1015)"
-	 * ```
-	 */
 	public function toString():String {
 		var out:String = "";
 
@@ -344,3 +325,30 @@ enum abstract Result(UInt32) from UInt32 to UInt32 {
 		return out;
 	}
 }
+#else
+enum abstract Result(Int) from Int to Int {
+	public inline function isSuccess():Bool {
+		return this == 0;
+	}
+
+	public inline function isFail():Bool {
+		return this != 0;
+	}
+
+	public var level(get, never):Int;
+	public inline function get_level():Int { return 0; }
+
+	public var summary(get, never):Int;
+	public inline function get_summary():Int { return 0; }
+
+	public var module(get, never):Int;
+	public inline function get_module():Int { return 0; }
+
+	public var description(get, never):Int;
+	public inline function get_description():Int { return this; }
+
+	public function toString():String {
+		return 'Result code: $this';
+	}
+}
+#end

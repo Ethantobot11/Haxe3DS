@@ -1,225 +1,98 @@
 package haxe3ds.applet;
 
 import haxe3ds.types.Result;
+import haxe3ds.services.CFG;
+
+using StringTools;
 
 /**
- * The Voice Selector Filtering, Values can only be 0 to 4.
- * @since 1.5.0
- */
-enum abstract VoiceSelFilter(Int) {
-	/**
-	 * All audios of any length is supported.
-	 */
-	var ANY_PERCENT = 0;
-
-	/**
-	 * The maximum length of audios is 10 seconds.
-	 */
-	var LOWER_THAN_100 = 1;
-
-	/**
-	 * The maximum length of audios is 7.5 seconds.
-	 */
-	var LOWER_THAN_75 = 2;
-
-	/**
-	 * The maximum length of audios is 5 seconds.
-	 */
-	var LOWER_THAN_50 = 3;
-
-	/**
-	 * The maximum length of audios is 2.5 seconds.
-	 */
-	var LOWER_THAN_25 = 4;
-}
-
-/**
- * Return code. Stores the return code that indicates the reason why the SNOTE applet terminated.
+ * Class for the Internet Browser API.
  * 
  * @since 1.5.0
  */
-enum VoiceSelReturnCode {
+#if HAXE3DS
+@:cppInclude("cstring")
+@:cppInclude("3ds.h")
+#end
+class WebBrowser {
 	/**
-	 * Abnormal end.
+	 * Maximum number of characters in a URL.
 	 */
-	UNKNOWN;
+	public static inline final MAX_LENGTH:Int = 1024;
 
 	/**
-	 * A config value is invalid.
-	 */
-	INVALID_CONFIG;
-
-	/**
-	 * Ended abnormally because of insufficient memory.
-	 */
-	OUT_OF_MEMORY;
-
-	/**
-	 * Ended normally (no audio was selected).
-	 */
-	NONE;
-
-	/**
-	 * Ended normally (audio was selected).
-	 */
-	SUCCESS;
-
-	/**
-	 * HOME was pressed.
-	 */
-	HOME_BUTTON;
-
-	/**
-	 * A button combination was pressed that causes a software reset.
-	 */
-	SOFTWARE_RESET;
-
-	/**
-	 * The POWER Button was pressed.
-	 */
-	POWER_BUTTON;
-}
-
-/**
- * The selector result.
- * 
- * @since 1.5.0
- */
-typedef VoiceSelResult = {
-	/**
-	 * The file path that's been selected by the user.
+	 * Function to Check if one of the Parental Controls's Restriction about Internet Browser is Restricted.
 	 * 
-	 * It's mostly stored in this directory: `sdmc:/Nintendo 3DS/private/00020500/voice/01/V13303.m4a`
+	 * @return `true` if it's restricted or config is `null`, `false` otherwise.
+	 */
+	public static function isRestricted():Bool {
+		#if !wiiu
+		final config:CFGParental = CFG.parentalControlsInfo;
+		if (config == null) return true;
+		return config.restriction.contains(INTERNET_BROWSER);
+		#else
+		return false;
+		#end
+	}
+
+	/**
+	 * Checks the URL in 6 ways.
 	 * 
-	 * Where:
-	 * - `00020500` is the Title ID for the Nintendo 3DS Sound.
-	 * - `01` is the folder page.
-	 * - `13` is the file number.
-	 * - `30` is the icon color.
-	 * - `3` Is the icon shape.
+	 * @param url The URL to check for validation.
+	 * @return `true` if url is valid, `false` because if failed one of the tests above.
 	 */
-	var filePath:String;
+	public static function isURLValid(url:String):Bool {
+		url = url.trim();
+
+		if (
+			url.length == 0 ||
+			url.length > MAX_LENGTH ||
+			!~/^(https?):\/\/([a-zA-Z0-9\-]+(\.[a-zA-Z0-9\-]+)*)(:[0-9]+)?(\/[^\s]*)?$/.match(url) ||
+			url.contains("..") || url.contains("\\")
+		) return false;
+	
+		try {
+			final host:String = url.split("://")[1].split("/")[0];
+			if (host.length == 0 || !host.contains(".")) return false;
+		} catch(_) {
+			return false;
+		}
+	
+		return true;
+	}
 
 	/**
-	 * The return code that was received by the applet.
+	 * Launches the URL.
+	 * 
+	 * On 3DS, this launches the "SPIDER" or "SKATER" applet.
+	 * On Wii U, this is stubbed and will simply trace the URL.
+	 * 
+	 * @param url The URL to launch.
+	 * @return The result received.
 	 */
-	var returnCode:VoiceSelReturnCode;
-
-	/**
-	 * The code in integer instead of an enum.
-	 */
-	var codeInt:Int;
-
-	/**
-	 * The result code if something went wrong.
-	 */
-	var result:Result;
-}
-
-/**
- * Class for the Nintendo 3DS Voice Selector (SNOTE) applet.
- * 
- * ## Warning:
- * This will not launch on azahar emulator, always check if it's a real 3ds by doing `Env.isUsing3DS`!
- * 
- * @since 1.5.0
- */
-@:cppFileCode('
-#include "haxe3ds_Utils.h"
-#include <3ds.h>
-#include <string.h>
-
-struct VCSELParameter {
-	u32 version;
-
-	bool homeButton;
-	bool softwareReset;
-	u8 padding1[6];
-	u8 reserved1[24];
-
-	u16 titleText[64];
-	u32 filterFillType;
-	u8 reserved2[127];
-
-	u32 returnCode;
-	u16 filePath[262];
-	u8 reserved[496];
-};
-')
-class VoiceSelector {
-	/**
-	 * The length maximum for the voice selector.
-	 */
-	public static inline final MAX_TITLE_LENGTH = 64;
-
-	/**
-	 * The text to be displayed on the bottom screen above, maximum `MAX_TITLE_LENGTH`.
-	 */
-	public var text = "Choose a sound.";
-
-	/**
-	 * The filter to use for the audio.
-	 */
-	public var filter:VoiceSelFilter = ANY_PERCENT;
-
-	/**
-	 * Whether or not you want to enable the HOME Menu.
-	 */
-	public var homeMenu = true;
-
-	/**
-	 * Whether or not you want to enable the Software Reset Key Combination.
-	 */
-	public var softwareReset:Bool;
-
-	/**
-	 * Constructor for the voice selector.
-	 */
-	public function new() {}
-
-	/**
-	 * Displays your configured selection and starts the SNOTE applet.
-	 * @return The result from SNOTE that was spewed out.
-	 */
-	public function display():VoiceSelResult {
-		if (text.length > MAX_TITLE_LENGTH) {
-			text = text.substr(0, MAX_TITLE_LENGTH);
+	public static function launchURL(url:String):Result {
+		if (!isURLValid(url)) {
+			#if HAXE3DS
+			return untyped __cpp__('MAKERESULT(RL_PERMANENT, RS_INVALIDSTATE, RM_WEB_BROWSER, RD_INVALID_ADDRESS)');
+			#else
+			return 0xD8A13FF5;
+			#end
 		}
 
-		var ret:Result = 0;
+		#if HAXE3DS
 		untyped __cpp__('
-			VCSELParameter param = { 0};
-			param.homeButton = this->homeMenu;
-			param.softwareReset = this->softwareReset;
-			param.filterFillType = this->filter;
-			TRANSFER(this->text.c_str(), param.titleText);
-
-			if R_FAILED(ret = APT_PrepareToStartLibraryApplet(APPID_SNOTE_AP)) {
-				goto cleanup;
-			}
-
-			aptSetMessageCallback(NULL, &param);
-			aptLaunchLibraryApplet(APPID_SNOTE_AP, (void*)&param, 0x524, 0);
-			aptSetMessageCallback(NULL, NULL);
-
-			cleanup:
+			size_t urlLen = url.length + 1;
+			u8* buffer = (u8*)malloc(urlLen);
+			if (!buffer) return MAKERESULT(RL_PERMANENT, RS_OUTOFRESOURCE, RM_WEB_BROWSER, RD_OUT_OF_MEMORY);
+			memcpy(buffer, url.c_str(), urlLen);
+			buffer[urlLen-1] = 0;
+			aptLaunchSystemApplet(APPID_WEB, buffer, urlLen, 0);
+			free(buffer);
 		');
-
-		return {
-			result: ret,
-			returnCode: switch (untyped __cpp__('param.returnCode')) {
-				case -1: UNKNOWN;
-				case -2: INVALID_CONFIG;
-				case -3: OUT_OF_MEMORY;
-				case  0: NONE;
-				case  1: SUCCESS;
-				case 10: HOME_BUTTON;
-				case 11: SOFTWARE_RESET;
-				case 12: POWER_BUTTON;
-				default: UNKNOWN;
-			},
-			codeInt: untyped __cpp__('param.returnCode'),
-			filePath: untyped __cpp__('u16ToString(param.filePath)')
-		};
+		return 0;
+		#else
+		trace("WebBrowser.launchURL is stubbed on Wii U. Requested URL: " + url);
+		return 0;
+		#end
 	}
 }

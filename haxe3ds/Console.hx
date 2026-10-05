@@ -1,23 +1,10 @@
 package haxe3ds;
 
-/**
- * Screen Graphical Enum
- */
 enum abstract GFXScreen(Int) {
-	/**
-	 * The 3DS's top screen. Resolution at 400x240.
-	 */
-	var	TOP;
-
-	/**
-	 * The 3DS's bottom screen. Resolution at 320x240.
-	 */
+	var TOP;
 	var BOTTOM;
 }
 
-/**
- * Graphical ANSI Color.
- */
 enum abstract ConsoleColor(String) {
 	var BLACK_TEXT = "\x1b[30;1m";
 	var RED_TEXT = "\x1b[31;1m";
@@ -27,7 +14,6 @@ enum abstract ConsoleColor(String) {
 	var MAGENTA_TEXT = "\x1b[35;1m";
 	var CYAN_TEXT = "\x1b[36;1m";
 	var WHITE_TEXT = "\x1b[37;1m";
-
 	var BLACK_BORDER = "\x1b[40;1m";
 	var RED_BORDER = "\x1b[41;1m";
 	var GREEN_BORDER = "\x1b[42;1m";
@@ -38,11 +24,6 @@ enum abstract ConsoleColor(String) {
 	var WHITE_BORDER = "\x1b[47;1m";
 }
 
-/**
- * Console's Private Use Area
- * 
- * @see https://unicode-explorer.com/b/E000
- */
 enum abstract ConsolePUA(String) {
 	var A = "\uE000";
 	var B = "\uE001";
@@ -72,40 +53,25 @@ enum abstract ConsolePUA(String) {
 	var DPAD_HORIZONTAL = "\uE07E";
 }
 
-/**
- * 3ds STDIO support.
- *
- * Provides STDIO integration for printing to the 3DS screen as well as debug print functionality provided by STDERR.
- */
+#if HAXE3DS
 @:cppInclude("haxe3ds_Utils.h")
+#end
 class Console {
-	/**
-	 * The width resolution from the 3DS for the top screen.
-	 */
 	public static inline final WIDTH_TOP = 400;
-
-	/**
-	 * The width resolution from the 3DS for the bottom screen.
-	 */
 	public static inline final WIDTH_BOTTOM = 320;
-
-	/**
-	 * The height resolution from the 3DS for all the two screens.
-	 */
 	public static inline final HEIGHT = 240;
 
-	/**
-	 * Initialise the console, enabling tracing or printing to the console.
-	 * @param screen The GFX Screen to use to initialize.
-	 */
 	public static inline function init(screen:GFXScreen = TOP) {
+		#if HAXE3DS
 		untyped __cpp__('consoleInit((gfxScreen_t)({0}), NULL)', screen);
+		#else
+		#end
 	}
 
-	/**
-	 * Clears the Console Screen by using the Built-In Function `printf("\x1b[2J")`
-	 */
 	public static inline function clear() {
+		#if HAXE3DS
 		Sys.print("\\x1b[2J");
+		#else
+		#end
 	}
 }

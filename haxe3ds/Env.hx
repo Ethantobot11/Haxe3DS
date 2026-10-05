@@ -1,7 +1,5 @@
 package haxe3ds;
 
-@:cppInclude("3ds.h")
-@:cppInclude("coreinit.h")
 class Env {
 	public static var is3DSX(get, null):Bool;
 	static inline function get_is3DSX():Bool {
