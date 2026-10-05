@@ -49,10 +49,7 @@ class APT {
 		#if HAXE3DS
 		untyped __cpp__('aptJumpToHomeMenu()');
 		#else
-		untyped __cpp__('
-			OSForceFullRelaunch();
-			OSExit();
-		');
+		untyped __cpp__('exit(0);');
 		#end
 	}
 
