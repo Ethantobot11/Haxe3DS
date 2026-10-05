@@ -4,17 +4,18 @@ import cpp.UInt32;
 import cpp.UInt64;
 import haxe3ds.types.Result;
 
-#if HAXE3DS
+#if !wiiu
 @:include("3ds.h")
 #else
 @:include("vpad/input.h")
 @:include("proc_ui/procui.h")
 @:include("coreinit/exit.h")
 #end
+
 class APT {
 	public static var isNew3DS(get, null):Bool;
 	static function get_isNew3DS():Bool {
-		#if HAXE3DS
+		#if !wiiu
 		return untyped __cpp__('API_GETTER(bool, APT_CheckNew3DS, false)');
 		#else
 		return true;
@@ -23,7 +24,7 @@ class APT {
 
 	public static var programID(get, null):UInt64;
 	static function get_programID():UInt64 {
-		#if HAXE3DS
+		#if !wiiu
 		return untyped __cpp__('API_GETTER(u64, APT_GetProgramID, 0)');
 		#else
 		return untyped __cpp__('0x0005000010100000ULL');
@@ -32,21 +33,21 @@ class APT {
 
 	public static var homeMenu(get, set):Bool;
 	static function get_homeMenu():Bool {
-		#if HAXE3DS
+		#if !wiiu
 		return untyped __cpp__('aptIsHomeAllowed()');
 		#else
 		return true;
 		#end
 	}
 	static function set_homeMenu(homeMenu):Bool {
-		#if HAXE3DS
+		#if !wiiu
 		untyped __cpp__('aptSetHomeAllowed(homeMenu)');
 		#end
 		return homeMenu;
 	}
 
 	public static inline function jumpToHomeMenu() {
-		#if HAXE3DS
+		#if !wiiu
 		untyped __cpp__('aptJumpToHomeMenu()');
 		#else
 		untyped __cpp__('exit(0);');
@@ -54,7 +55,7 @@ class APT {
 	}
 
 	public static function mainLoop():Bool {
-		#if HAXE3DS
+		#if !wiiu
 		HID.scanInput();
 		#if CITROENGINE
 		return untyped __cpp__("aptMainLoop()");
@@ -68,7 +69,7 @@ class APT {
 	}
 
 	public static function isActive():Bool {
-		#if HAXE3DS
+		#if !wiiu
 		return untyped __cpp__('aptIsActive()');
 		#else
 		return untyped __cpp__('ProcUIProcessMessages(false) != PROCUI_STATUS_EXITING');
