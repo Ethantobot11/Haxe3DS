@@ -5,46 +5,28 @@ import sys.io.File;
 
 using StringTools;
 
-typedef H3DSP_Optimization = {
-	var gFlag:Bool;
-	var o2Flag:Bool;
-}
-
-typedef H3DSP_LinkOptions = {
-	var ip:String;
-	var linkToConsole:Bool;
-	var openEmuIfTransferFailed:Bool;
-}
+typedef H3DSP_Optimization = { var gFlag:Bool; var o2Flag:Bool; }
+typedef H3DSP_LinkOptions = { var ip:String; var linkToConsole:Bool; var openEmuIfTransferFailed:Bool; }
 
 typedef H3DSP_Settings = {
 	var deleteTempFiles:Bool;
 	var compileAsPlugin:Bool;
+	var compileAsWUP:Bool;
 	var defines:Array<String>;
 	var libraries:Array<String>;
 	var linkOptions:H3DSP_LinkOptions;
 	var optimizations:H3DSP_Optimization;
 }
 
-typedef H3DSP_Metadata = {
-	var title:String;
-	var description:String;
-	var author:String;
-}
-
-typedef Haxe3DSProject = {
-	var settings:H3DSP_Settings;
-	var metadata:H3DSP_Metadata;
-}
+typedef H3DSP_Metadata = { var title:String; var description:String; var author:String; }
+typedef Haxe3DSProject = { var settings:H3DSP_Settings; var metadata:H3DSP_Metadata; }
 
 class Haxe3DS_Tool {
 	static var cwd = "";
-	
 	static var HXML_TEMP = "-cp source\n-main Main\n\n# libs\n-lib hxcpp\n\n# defines\n-D loop_unroll_max_cost=0\n-D no_ssl\n-D no_pch\n{1}\n-D HAXE_OUTPUT_PART=HAXE_CONSOLE\n-D HXCPP_SINGLE_THREADED_APP\n-D HXCPP_STACK_TRACE\n-D HXCPP_STACK_LINE\n-D static_link\n-D message.reporting=pretty\n{2}\n\n# output directory\n-cpp export";
 
 	static function readConfig():Haxe3DSProject {
-		if (FileSystem.exists("3dsSettings.json")) {
-			return Json.parse(File.getContent("3dsSettings.json"));
-		}
+		if (FileSystem.exists("3dsSettings.json")) return Json.parse(File.getContent("3dsSettings.json"));
 		throw 'Please generate it by calling "haxelib run haxe3ds -g" to generate a Config File.';
 	}
 
@@ -105,94 +87,67 @@ class Haxe3DS_Tool {
 	}
 
 	static function getTargetExt(project:Haxe3DSProject, isWiiU:Bool):String {
-		if (isWiiU) return project.settings.compileAsPlugin ? "wps" : "rpx";
+		if (isWiiU) {
+			if (project.settings.compileAsWUP) return "wup";
+			return project.settings.compileAsPlugin ? "wps" : "rpx";
+		}
 		return project.settings.compileAsPlugin ? "cia" : "3dsx";
 	}
 
-	static function fileHandler(p:Haxe3DSProject = null, isWiiU:Bool = false) {
-		if (p == null) p = readConfig();
-		var ext = getTargetExt(p, isWiiU);
-		if (!FileSystem.exists('buildFiles/output.$ext')) {
-			trace("Application needs to be built first");
-			return;
+	static function buildWUP(project:Haxe3DSProject, titleId:String = "0005000010100000"):Bool {
+		var wupDir = "wup_build";
+		makeDirs('$wupDir/code');
+		makeDirs('$wupDir/meta');
+		makeDirs('$wupDir/content');
+		
+		if (FileSystem.exists("buildFiles/output.rpx")) {
+			File.saveBytes('$wupDir/code/Deltarune.rpx', File.getBytes("buildFiles/output.rpx"));
+		} else {
+			trace("ERROR: output.rpx not found!");
+			return false;
 		}
-
-		var ip = p.settings.linkOptions.ip;
-		function validateIP():Bool {
-			var dots = ip.split(".");
-			if (dots.length != 4) return false;
-			for (number in dots) {
-				try {
-					var num = Std.parseInt(number);
-					if (num == null || !(0 <= num && num <= 255)) return false;
-				} catch(_) { return false; }
-			}
-			return !ip.contains("-");
+		
+		if (FileSystem.exists("assets")) {
+			recursiveCopyFiles("assets", '$wupDir/code/assets');
 		}
-
-		if (validateIP() && p.settings.linkOptions.linkToConsole) {
-			var devkitpro = toDKPPath("[DKP_PATH]");
-			if (!isWiiU) {
-				var tool = Sys.systemName() == "Windows" ? '$devkitpro/tools/bin/3dslink.exe' : '$devkitpro/tools/bin/3dslink';
-				if (!execute('$tool -a $ip buildFiles/output.3dsx') && p.settings.linkOptions.openEmuIfTransferFailed) {
-					trace("Transfer failed, try running emulator manually.");
-				}
-			} else {
-				var tool = Sys.systemName() == "Windows" ? '$devkitpro/tools/bin/wiiload.exe' : '$devkitpro/tools/bin/wiiload';
-				Sys.putEnv("WIILOAD", 'tcp:$ip');
-				execute('$tool buildFiles/output.$ext');
+		
+		var metaXml = '<?xml version="1.0" encoding="utf-8"?>\n' +
+			'<menu type="complex" access="777">\n' +
+			'  <version type="unsignedInt" length="4">33</version>\n' +
+			'  <product_code type="string" length="16">WUP-N-HAXE</product_code>\n' +
+			'  <title_id type="hexBinary" length="8">$titleId</title_id>\n' +
+			'  <title_version type="hexBinary" length="2">0000</title_version>\n' +
+			'  <group_id type="hexBinary" length="4">00001000</group_id>\n' +
+			'  <region type="hexBinary" length="4">00000002</region>\n' +
+			'</menu>';
+		File.saveContent('$wupDir/meta/meta.xml', metaXml);
+		
+		if (FileSystem.exists("assets/icon.png")) {
+			execute('convert assets/icon.png -resize 128x128 $wupDir/meta/iconTex.tga');
+			execute('convert assets/icon.png -resize 854x480 $wupDir/meta/bootDrcTex.tga');
+			execute('convert assets/icon.png -resize 1280x720 $wupDir/meta/bootTvTex.tga');
+		}
+		
+		if (FileSystem.exists("resources/wiiu/app.xml")) {
+			File.saveContent('$wupDir/code/app.xml', File.getContent("resources/wiiu/app.xml").replace("TITLE_ID", titleId));
+			File.saveContent('$wupDir/code/cos.xml', File.getContent("resources/wiiu/cos.xml").replace("TITLE_ID", titleId));
+		}
+		
+		var commonKey = Sys.getEnv("WIIU_COMMON_KEY");
+		if (commonKey != null) {
+			var success = execute('java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in "$wupDir" -out "installable_build/$titleId" -encryptKeyWith "$commonKey"');
+			if (success) {
+				trace("WUP package built successfully at installable_build/$titleId !");
+				return true;
 			}
 		} else {
-			trace("Skipping auto-launch. Set a valid IP in 3dsSettings.json to use 3dslink/wiiload.");
+			trace("Warning: WIIU_COMMON_KEY not set, skipping WUP encryption");
 		}
-	}
-
-	static function buildWUP(project:Haxe3DSProject, titleId:String = "0005000010100000") {
-	    var wupDir = "wup_build";
-	    makeDirs('$wupDir/code');
-	    makeDirs('$wupDir/meta');
-	    makeDirs('$wupDir/content');
-	    
-	    File.saveBytes('$wupDir/code/Deltarune.rpx', File.getBytes("buildFiles/output.rpx"));
-	    
-	    if (FileSystem.exists("assets")) {
-	        recursiveCopyFiles("assets", '$wupDir/code/assets');
-	    }
-	    
-	    var metaXml = '<?xml version="1.0" encoding="utf-8"?>\n' +
-	        '<menu type="complex" access="777">\n' +
-	        '  <version type="unsignedInt" length="4">33</version>\n' +
-	        '  <product_code type="string" length="16">WUP-N-HAXE</product_code>\n' +
-	        '  <title_id type="hexBinary" length="8">$titleId</title_id>\n' +
-	        '  <title_version type="hexBinary" length="2">0000</title_version>\n' +
-	        '  <group_id type="hexBinary" length="4">00001000</group_id>\n' +
-	        '  <region type="hexBinary" length="4">00000002</region>\n' +
-	        '</menu>';
-	    File.saveContent('$wupDir/meta/meta.xml', metaXml);
-	    
-	    if (FileSystem.exists("assets/icon.png")) {
-	        execute('convert assets/icon.png -resize 128x128 $wupDir/meta/iconTex.tga');
-	        execute('convert assets/icon.png -resize 854x480 $wupDir/meta/bootDrcTex.tga');
-	        execute('convert assets/icon.png -resize 1280x720 $wupDir/meta/bootTvTex.tga');
-	    }
-	    
-	    if (FileSystem.exists("resources/wiiu/app.xml")) {
-	        File.saveContent('$wupDir/code/app.xml', File.getContent("resources/wiiu/app.xml").replace("TITLE_ID", titleId));
-	        File.saveContent('$wupDir/code/cos.xml', File.getContent("resources/wiiu/cos.xml").replace("TITLE_ID", titleId));
-	    }
-	    
-	    var commonKey = Sys.getEnv("WIIU_COMMON_KEY");
-	    if (commonKey != null) {
-	        execute('java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in "$wupDir" -out "installable_build/$titleId" -encryptKeyWith "$commonKey"');
-	        trace("WUP package built successfully!");
-	    } else {
-	        trace("Warning: WIIU_COMMON_KEY not set, skipping encryption");
-	    }
+		return false
 	}
 
 	static function main() {
 		haxe.Log.trace = (v, ?infos) -> Sys.println(v);
-		
 		Sys.println("========================================================");
 		Sys.println("  Haxe3DS Unified Console Tool");
 		Sys.println("========================================================");
@@ -216,7 +171,6 @@ class Haxe3DS_Tool {
 
 		cwd = Sys.getCwd().replace("\\", "/");
 		cwd = cwd.substr(0, cwd.length - 1);
-		
 		var isWiiU = args.contains("-Dwiiu") || args.contains("-Dcafe");
 
 		switch args.shift() {
@@ -226,6 +180,7 @@ class Haxe3DS_Tool {
 					settings: {
 						deleteTempFiles: false,
 						compileAsPlugin: false,
+						compileAsWUP: false,
 						defines: [],
 						libraries: ["hxcpp"],
 						linkOptions: { ip: "192.168.1.100", linkToConsole: false, openEmuIfTransferFailed: false },
@@ -240,12 +195,8 @@ class Haxe3DS_Tool {
 				function sanityCheck(info:String, func:()->Bool, ngText:String = "") {
 					var out = Sys.stdout();
 					Sys.print('> $info...');
-					if (func()) { 
-						out.writeString(" OK. \n"); 
-					} else { 
-						out.writeString(' NG. $ngText \n'); 
-						Sys.exit(1); 
-					}
+					if (func()) { out.writeString(" OK. \n"); } 
+					else { out.writeString(' NG. $ngText \n'); Sys.exit(1); }
 				}
 
 				sanityCheck("Checking for Config", () -> FileSystem.exists("3dsSettings.json"), 'Run "-g" first.');
@@ -260,16 +211,7 @@ class Haxe3DS_Tool {
 				var attributes:Map<String, Array<String>> = [ flagsKey => [] ];
 
 				if (isWiiU) {
-				    attributes[flagsKey] = [
-				        '-lHAXEWIIU', '-lwut', '-lcoreinit', '-lfs', '-lgx2', '-lhxcpp', 
-				        '-Iexport/include', 
-				        '-L[DKP_PATH]/wut/lib', 
-				        '-I[DKP_PATH]/wut/include', 
-				        '-I[DKP_PATH]/wut/include/wut',
-				        '-L[DKP_PATH]/portlibs/wiiu/lib', 
-				        '-I[DKP_PATH]/portlibs/wiiu/include',
-				        '-lSDL2'
-				    ];
+					attributes[flagsKey] = ['-lHAXEWIIU', '-lwut', '-lcoreinit', '-lfs', '-lgx2', '-lhxcpp', '-Iexport/include', '-L[DKP_PATH]/wut/lib', '-I[DKP_PATH]/wut/include', '-I[DKP_PATH]/wut/include/wut', '-L[DKP_PATH]/portlibs/wiiu/lib', '-I[DKP_PATH]/portlibs/wiiu/include', '-lSDL2'];
 				} else {
 					attributes[flagsKey] = ['-lHAXE3DS', '-lcitro2d', '-lcitro3d', '-lctru', '-lcwav', '-lncsnd', '-lhxcpp', '-Iexport/include', '-L"[DKP_PATH]/portlibs/3ds/lib"', '-I"[DKP_PATH]/portlibs/3ds/include"', '-lz'];
 				}
@@ -307,10 +249,7 @@ class Haxe3DS_Tool {
 						'  <long_description>${project.metadata.description}</long_description>\n' +
 						'</app>';
 					File.saveContent("export/meta.xml", metaXml);
-					
-					if (FileSystem.exists("assets/icon.png")) {
-						File.saveBytes("export/icon.png", File.getBytes("assets/icon.png"));
-					}
+					if (FileSystem.exists("assets/icon.png")) File.saveBytes("export/icon.png", File.getBytes("assets/icon.png"));
 				}
 
 				var targetDefine = isWiiU ? (project.settings.compileAsPlugin ? "-D IS_WUPS_PLUGIN" : "-D IS_WUT_RPX") : (project.settings.compileAsPlugin ? "-D IS_CIA" : "-D IS_3DSX");
@@ -338,8 +277,8 @@ class Haxe3DS_Tool {
 						for (key => flags in attributes.keyValueIterator()) {
 							var values = "";
 							for (flag in flags) {
-							    var cleanFlag = flag.replace("\\", "/").trim();
-							    values += '<flag value=\'' + cleanFlag + '\'/>\n';
+								var cleanFlag = flag.replace("\\", "/").trim();
+								values += '<flag value=\'' + cleanFlag + '\'/>\n';
 							}
 							xmlContent = xmlContent.replace(key, values);
 						}
@@ -352,14 +291,15 @@ class Haxe3DS_Tool {
 				sanityCheck("Compiling using the custom HXML file", () -> execute("haxe build.hxml"), "Failed to compile!");
 				
 				Sys.setCwd('export');
-				
 				var makefileName = isWiiU ? (project.settings.compileAsPlugin ? "Makefile.wups" : "Makefile.wut") : "Makefile";
-				if (FileSystem.exists('../$makefileName')) {
-					File.copy('../$makefileName', 'Makefile');
-				}
+				if (FileSystem.exists('../$makefileName')) File.copy('../$makefileName', 'Makefile');
 
-				var makeTarget = isWiiU ? (project.settings.compileAsPlugin ? "wps" : "rpx") : (project.settings.compileAsPlugin ? "cia" : "3dsx");
+				var makeTarget = isWiiU ? (project.settings.compileAsWUP ? "rpx" : (project.settings.compileAsPlugin ? "wps" : "rpx")) : (project.settings.compileAsPlugin ? "cia" : "3dsx");
 				sanityCheck("Finally Compiling to Working Application", () -> execute('make clean && make $makeTarget'), "Failed to compile!");
+
+				if (isWiiU && project.settings.compileAsWUP) {
+					sanityCheck("Building Installable WUP Package", () -> buildWUP(project, "0005000010100000"), "Failed to build WUP!");
+				}
 
 				recursiveCopyFiles("output", "../buildFiles");
 				Sys.setCwd("..");
@@ -373,8 +313,7 @@ class Haxe3DS_Tool {
 				trace("Successfully Compiled!");
 				fileHandler(project, isWiiU);
 
-			case "-s": 
-				fileHandler(null, isWiiU);
+			case "-s": fileHandler(null, isWiiU);
 			case "-e":
 				var devkitpro = toDKPPath("[DKP_PATH]");
 				var addr2line = isWiiU 
