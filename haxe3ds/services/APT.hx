@@ -4,9 +4,12 @@ import cpp.UInt32;
 import cpp.UInt64;
 import haxe3ds.types.Result;
 
+#if HAXE3DS
 @:cppInclude("3ds.h")
-@:cppInclude("coreinit.h")
+#else
 @:cppInclude("proc_ui/procui.h")
+@:cppInclude("coreinit/exit.h")
+#end
 class APT {
 	public static var isNew3DS(get, null):Bool;
 	static function get_isNew3DS():Bool {
@@ -19,11 +22,11 @@ class APT {
 
 	public static var programID(get, null):UInt64;
 	static function get_programID():UInt64 {
-	    #if HAXE3DS
-	    return untyped __cpp__('API_GETTER(u64, APT_GetProgramID, 0)');
-	    #else
-	    return untyped __cpp__('0x0005000010100000ULL');
-	    #end
+		#if HAXE3DS
+		return untyped __cpp__('API_GETTER(u64, APT_GetProgramID, 0)');
+		#else
+		return untyped __cpp__('0x0005000010100000ULL');
+		#end
 	}
 
 	public static var homeMenu(get, set):Bool;
@@ -45,8 +48,10 @@ class APT {
 		#if HAXE3DS
 		untyped __cpp__('aptJumpToHomeMenu()');
 		#else
-		untyped __cpp__('OSForceFullRelaunch()');
-		untyped __cpp__('OSExit()');
+		untyped __cpp__('
+			OSForceFullRelaunch();
+			OSExit();
+		');
 		#end
 	}
 
