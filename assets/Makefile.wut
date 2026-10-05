@@ -77,7 +77,7 @@ clean :
 
 #---------------------------------------------------------------------------------
 else
-.PHONY:	all
+.PHONY:	all rpx wps elf
 
 DEPENDS		:=	$(OFILES:.o=.d)
 
@@ -91,6 +91,11 @@ $(OUTPUT_FILE).wps	:	$(OUTPUT_FILE).elf
 	@echo "built ... $(notdir $@)"
 
 $(OUTPUT_FILE).elf	:	$(OFILES)
+
+# THESE WERE MISSING AND CAUSED THE ERROR:
+rpx : $(OUTPUT_FILE).rpx
+wps : $(OUTPUT_FILE).wps
+elf : $(OUTPUT_FILE).elf
 
 -include $(DEPENDS)
 #---------------------------------------------------------------------------------
