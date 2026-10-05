@@ -10,8 +10,9 @@ typedef H3DSP_LinkOptions = { var ip:String; var linkToConsole:Bool; var openEmu
 
 typedef H3DSP_Settings = {
 	var deleteTempFiles:Bool;
-	var compileAsPlugin:Bool;
+	var compileAsCIA:Bool;
 	var compileAsWUP:Bool;
+	var compileAsPlugin:Bool;
 	var defines:Array<String>;
 	var libraries:Array<String>;
 	var linkOptions:H3DSP_LinkOptions;
@@ -91,7 +92,7 @@ class Haxe3DS_Tool {
 			if (project.settings.compileAsWUP) return "wup";
 			return project.settings.compileAsPlugin ? "wps" : "rpx";
 		}
-		return project.settings.compileAsPlugin ? "cia" : "3dsx";
+		return project.settings.compileAsCIA ? "cia" : "3dsx";
 	}
 
 	static function fileHandler(p:Haxe3DSProject = null, isWiiU:Bool = false) {
@@ -217,8 +218,9 @@ class Haxe3DS_Tool {
 				var out:Haxe3DSProject = {
 					settings: {
 						deleteTempFiles: false,
-						compileAsPlugin: false,
+						compileAsCIA: false,
 						compileAsWUP: false,
+						compileAsPlugin: false,
 						defines: [],
 						libraries: ["hxcpp"],
 						linkOptions: { ip: "192.168.1.100", linkToConsole: false, openEmuIfTransferFailed: false },
@@ -290,7 +292,7 @@ class Haxe3DS_Tool {
 					if (FileSystem.exists("assets/icon.png")) File.saveBytes("export/icon.png", File.getBytes("assets/icon.png"));
 				}
 
-				var targetDefine = isWiiU ? (project.settings.compileAsPlugin ? "-D IS_WUPS_PLUGIN" : "-D IS_WUT_RPX") : (project.settings.compileAsPlugin ? "-D IS_CIA" : "-D IS_3DSX");
+				var targetDefine = isWiiU ? (project.settings.compileAsPlugin ? "-D IS_WUPS_PLUGIN" : "-D IS_WUT_RPX") : (project.settings.compileAsCIA ? "-D IS_CIA" : "-D IS_3DSX");
 				var platformDefine = isWiiU ? "-D wiiu\n-D cafe\n-D HAXEWIIU" : "-D nx\n-D haxe3ds";
 				
 				HXML_TEMP = HXML_TEMP.replace("{1}", [for (lib in goodHaxeLibs) if (lib != "hxcpp") '-lib $lib\n-D ${lib.toUpperCase()}'].join("\n"));
@@ -329,6 +331,7 @@ class Haxe3DS_Tool {
 				sanityCheck("Compiling using the custom HXML file", () -> execute("haxe build.hxml"), "Failed to compile!");
 				
 				Sys.setCwd('export');
+				
 				var makefileName = isWiiU ? (project.settings.compileAsPlugin ? "Makefile.wups" : "Makefile.wut") : "Makefile";
 				
 				trace("=== DEBUG: Makefile Selection ===");
@@ -339,7 +342,7 @@ class Haxe3DS_Tool {
 					trace("SUCCESS: Found " + makefileName + ", copying to export/Makefile");
 					File.copy('../$makefileName', 'Makefile');
 				} else {
-					trace("WARNING: " + makefileName + " NOT FOUND in parent directory! Using whatever Makefile is already in export/");
+					trace("WARNING: " + makefileName + " NOT FOUND in parent directory!");
 				}
 
 				if (FileSystem.exists('Makefile')) {
@@ -353,7 +356,7 @@ class Haxe3DS_Tool {
 					trace("CRITICAL ERROR: No Makefile exists in the export directory at all!");
 				}
 
-				var makeTarget = isWiiU ? (project.settings.compileAsWUP ? "rpx" : (project.settings.compileAsPlugin ? "wps" : "rpx")) : (project.settings.compileAsPlugin ? "cia" : "3dsx");
+				var makeTarget = isWiiU ? (project.settings.compileAsWUP ? "rpx" : (project.settings.compileAsPlugin ? "wps" : "rpx")) : (project.settings.compileAsCIA ? "cia" : "3dsx");
 				trace("Make target to execute: " + makeTarget);
 				trace("=================================");
 				
