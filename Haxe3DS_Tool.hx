@@ -330,9 +330,33 @@ class Haxe3DS_Tool {
 				
 				Sys.setCwd('export');
 				var makefileName = isWiiU ? (project.settings.compileAsPlugin ? "Makefile.wups" : "Makefile.wut") : "Makefile";
-				if (FileSystem.exists('../$makefileName')) File.copy('../$makefileName', 'Makefile');
+				
+				trace("=== DEBUG: Makefile Selection ===");
+				trace("Platform detected: " + (isWiiU ? "Wii U" : "3DS"));
+				trace("Looking for source Makefile in parent dir: ../" + makefileName);
+				
+				if (FileSystem.exists('../$makefileName')) {
+					trace("SUCCESS: Found " + makefileName + ", copying to export/Makefile");
+					File.copy('../$makefileName', 'Makefile');
+				} else {
+					trace("WARNING: " + makefileName + " NOT FOUND in parent directory! Using whatever Makefile is already in export/");
+				}
+
+				if (FileSystem.exists('Makefile')) {
+					var content = File.getContent('Makefile');
+					var lines = content.split("\n");
+					trace("First 3 lines of the active Makefile to verify it's correct:");
+					for (i in 0...Std.int(Math.min(3, lines.length))) {
+						trace("  > " + lines[i]);
+					}
+				} else {
+					trace("CRITICAL ERROR: No Makefile exists in the export directory at all!");
+				}
 
 				var makeTarget = isWiiU ? (project.settings.compileAsWUP ? "rpx" : (project.settings.compileAsPlugin ? "wps" : "rpx")) : (project.settings.compileAsPlugin ? "cia" : "3dsx");
+				trace("Make target to execute: " + makeTarget);
+				trace("=================================");
+				
 				sanityCheck("Finally Compiling to Working Application", () -> execute('make clean && make $makeTarget'), "Failed to compile!");
 
 				if (isWiiU && project.settings.compileAsWUP) {
