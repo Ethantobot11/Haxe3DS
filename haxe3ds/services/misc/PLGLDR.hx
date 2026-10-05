@@ -24,7 +24,7 @@ class PLGLDR {
 	 * On Wii U: Does nothing (WUPS handles this automatically).
 	 */
 	public static function init():Result {
-		#if !wiiu
+		#if HAXE3DS
 		var result:Result = 0;
 		untyped __cpp__('
 			if (AtomicPostIncrement(&plgldr_refcount) == 0) {
@@ -44,7 +44,7 @@ class PLGLDR {
 	 * On Wii U: Does nothing.
 	 */
 	public static function exit() {
-		#if !wiiu
+		#if HAXE3DS
 		untyped __cpp__('
 			if (AtomicDecrement(&plgldr_refcount)) {
 				return;
@@ -70,7 +70,7 @@ class PLGLDR {
 	 * @return Result to indicate success or failure.
 	 */
 	public static function displayMessage(title:String, message:String, result:Result = 0):Result {
-		#if !wiiu
+		#if HAXE3DS
 		var res:Result = 0;
 
 		untyped __cpp__('
