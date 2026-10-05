@@ -3,15 +3,19 @@ package haxe3ds;
 import cpp.UInt64;
 import cpp.UInt8;
 
+#if HAXE3DS
 @:cppInclude("3ds.h")
-@:cppInclude("coreinit.h")
+#else
+@:cppInclude("coreinit/time.h")
+@:cppInclude("coreinit/system.h")
+#end
 class OS {
 	public static var time(get, null):UInt64;
 	static function get_time():UInt64 {
 		#if HAXE3DS
 		return untyped __cpp__('osGetTime()');
 		#else
-		return untyped __cpp__('(uint64_t)(OSGetTime() / (OSGetSystemInfo()->busSpeed / 1000))');
+		return untyped __cpp__('(uint64_t)(OSGetSystemTime() / (OSGetSystemInfo()->busSpeed / 4))');
 		#end
 	}
 
