@@ -7,6 +7,7 @@ import haxe3ds.types.Result;
 #if HAXE3DS
 @:cppInclude("3ds.h")
 #else
+@:cppInclude("vpad/input.h")
 @:cppInclude("proc_ui/procui.h")
 @:cppInclude("coreinit/exit.h")
 #end
