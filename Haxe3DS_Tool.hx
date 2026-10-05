@@ -147,6 +147,49 @@ class Haxe3DS_Tool {
 		}
 	}
 
+	static function buildWUP(project:Haxe3DSProject, titleId:String = "0005000010100000") {
+	    var wupDir = "wup_build";
+	    makeDirs('$wupDir/code');
+	    makeDirs('$wupDir/meta');
+	    makeDirs('$wupDir/content');
+	    
+	    File.saveBytes('$wupDir/code/Deltarune.rpx', File.getBytes("buildFiles/output.rpx"));
+	    
+	    if (FileSystem.exists("assets")) {
+	        recursiveCopyFiles("assets", '$wupDir/code/assets');
+	    }
+	    
+	    var metaXml = '<?xml version="1.0" encoding="utf-8"?>\n' +
+	        '<menu type="complex" access="777">\n' +
+	        '  <version type="unsignedInt" length="4">33</version>\n' +
+	        '  <product_code type="string" length="16">WUP-N-HAXE</product_code>\n' +
+	        '  <title_id type="hexBinary" length="8">$titleId</title_id>\n' +
+	        '  <title_version type="hexBinary" length="2">0000</title_version>\n' +
+	        '  <group_id type="hexBinary" length="4">00001000</group_id>\n' +
+	        '  <region type="hexBinary" length="4">00000002</region>\n' +
+	        '</menu>';
+	    File.saveContent('$wupDir/meta/meta.xml', metaXml);
+	    
+	    if (FileSystem.exists("assets/icon.png")) {
+	        execute('convert assets/icon.png -resize 128x128 $wupDir/meta/iconTex.tga');
+	        execute('convert assets/icon.png -resize 854x480 $wupDir/meta/bootDrcTex.tga');
+	        execute('convert assets/icon.png -resize 1280x720 $wupDir/meta/bootTvTex.tga');
+	    }
+	    
+	    if (FileSystem.exists("resources/wiiu/app.xml")) {
+	        File.saveContent('$wupDir/code/app.xml', File.getContent("resources/wiiu/app.xml").replace("TITLE_ID", titleId));
+	        File.saveContent('$wupDir/code/cos.xml', File.getContent("resources/wiiu/cos.xml").replace("TITLE_ID", titleId));
+	    }
+	    
+	    var commonKey = Sys.getEnv("WIIU_COMMON_KEY");
+	    if (commonKey != null) {
+	        execute('java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in "$wupDir" -out "installable_build/$titleId" -encryptKeyWith "$commonKey"');
+	        trace("WUP package built successfully!");
+	    } else {
+	        trace("Warning: WIIU_COMMON_KEY not set, skipping encryption");
+	    }
+	}
+
 	static function main() {
 		haxe.Log.trace = (v, ?infos) -> Sys.println(v);
 		
