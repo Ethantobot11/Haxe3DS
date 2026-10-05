@@ -35,7 +35,7 @@ namespace FSD {
 class FS {
 	public static var isSDMCDetected(get, null):Bool;
 	static function get_isSDMCDetected():Bool {
-		#if !wiiu
+		#if HAXE3DS
 		return untyped __cpp__('API_GETTER(bool, FSUSER_IsSdmcDetected, 0)');
 		#else
 		return true;
@@ -44,7 +44,7 @@ class FS {
 
 	public static var isSDMCWritable(get, null):Bool;
 	static function get_isSDMCWritable():Bool {
-		#if !wiiu
+		#if HAXE3DS
 		return untyped __cpp__('API_GETTER(bool, FSUSER_IsSdmcWritable, 0)');
 		#else
 		return true;
@@ -52,7 +52,7 @@ class FS {
 	}
 
 	public static function mountSaveData(partition:String = "ext", files:Int = 1, dirs:Int = 1):Result {
-		#if !wiiu
+		#if HAXE3DS
 		#if IS_CIA
 		var res:Result = 0;
 		untyped __cpp__('
@@ -73,7 +73,7 @@ class FS {
 	}
 
 	public static function flushAndCommit(partition:String = "ext"):Result {
-		#if !wiiu
+		#if HAXE3DS
 		#if IS_CIA
 		return untyped __cpp__('archiveCommitSaveData(partition.c_str())');
 		#else
@@ -87,7 +87,7 @@ class FS {
 	public static var playCoins(get, set):UInt16;
 	
 	static function get_playCoins():UInt16 {
-		#if !wiiu
+		#if HAXE3DS
 		var out:UInt16 = -1;
 		untyped __cpp__('
 			FS_Archive archive;
@@ -108,7 +108,7 @@ class FS {
 	}
 	
 	static function set_playCoins(playCoins):UInt16 {
-		#if !wiiu
+		#if HAXE3DS
 		playCoins = playCoins > 300 ? 300 : playCoins < 0 ? 0 : playCoins;
 		untyped __cpp__('
 			FS_Archive archive;
@@ -132,7 +132,7 @@ class FS {
 	}
 
 	public static function deleteFile(path:String):Result {
-		#if !wiiu
+		#if HAXE3DS
 		return untyped __cpp__('FSUSER_DeleteFile(FSD::get_sdmcRoot(), fsMakePath(PATH_ASCII, path.c_str()))');
 		#else
 		return 0;
@@ -140,7 +140,7 @@ class FS {
 	}
 
 	public static function renameFile(source:String, destination:String):Result {
-		#if !wiiu
+		#if HAXE3DS
 		return untyped __cpp__('FSUSER_RenameFile(FSD::get_sdmcRoot(), fsMakePath(PATH_ASCII, source.c_str()), FSD::get_sdmcRoot(), fsMakePath(PATH_ASCII, destination.c_str()))');
 		#else
 		return 0;
@@ -148,7 +148,7 @@ class FS {
 	}
 
 	public static function deleteDir(source:String, recursive:Bool = false):Result {
-		#if !wiiu
+		#if HAXE3DS
 		untyped __cpp__('FS_Path p = fsMakePath(PATH_ASCII, source.c_str())');
 		return untyped __cpp__('recursive ? FSUSER_DeleteDirectoryRecursively(FSD::get_sdmcRoot(), p) : FSUSER_DeleteDirectory(FSD::get_sdmcRoot(), p)');
 		#else
@@ -158,7 +158,7 @@ class FS {
 
 	public static var ctrRootPath(default, null):String = "";
 	static function get_ctrRootPath():String {
-		#if !wiiu
+		#if HAXE3DS
 		untyped __cpp__('
 			u16 root[256] = { 0};
 			FSUSER_GetSdmcCtrRootPath((u8*)root, 512)
@@ -170,7 +170,7 @@ class FS {
 	}
 
 	public static function exit() {
-		#if !wiiu
+		#if HAXE3DS
 		untyped __cpp__('
 			FSUSER_CloseArchive(FSD::get_sdmcRoot());
 			fsExit()
@@ -246,6 +246,7 @@ typedef FSSMDHAppSettings = {
  * TODO: Finish these.
  * @since 1.6.0
  */
+#if HAXE3DS
 @:cppFileCode('
 #include "haxe3ds_Utils.h"
 
@@ -282,6 +283,7 @@ struct SMDH {
 	u16 bigIconData[0x900];
 };
 ')
+#end
 class FSSMDH {
 	public var result(default, null):Result = 0;
 	public var valid(default, null):Bool = false;
@@ -292,6 +294,7 @@ class FSSMDH {
 	};
 
 	public function new(highTID:Int, lowTID:Int, media:FSMediaType) {
+		#if HAXE3DS
 		untyped __cpp__('
 			u32 archPath[] = {lowTID, highTID, (FS_MediaType)media, 0x0};
 			static const u32 filePath[] = {0x0, 0x0, 0x2, 0x6E6F6369, 0x0};
@@ -348,5 +351,6 @@ class FSSMDH {
 				this.appSettings.regionLock.push(Lflags[i]);
 			}
 		}
+	#end
 	}
 }
