@@ -6,7 +6,8 @@ import haxe3ds.types.Result;
 
 #if !wiiu
 @:include("3ds.h")
-#else
+#end
+#if HAXEWIIU
 @:include("vpad/input.h")
 @:include("proc_ui/procui.h")
 @:include("coreinit/exit.h")
