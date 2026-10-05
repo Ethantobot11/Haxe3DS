@@ -3,22 +3,28 @@ package haxe3ds.services.misc;
 import haxe3ds.types.Result;
 
 /**
- * A Miscellaneous Plugin Loader Service for the 3DS.
+ * A Miscellaneous Plugin Loader Service.
  * 
- * This is only available to any 3DS with CFW running Luma3DS, Anything else running will do nothing, Using an emulator for this will also NOT do anything.
+ * On 3DS: Uses Luma3DS's plg:ldr service for plugin loading and notifications.
+ * On Wii U: WUPS handles plugin loading automatically. This is stubbed for compatibility.
  * 
  * @since 1.8.0
  */
+#if HAXE3DS
 @:cppInclude('haxe3ds_Utils.h')
 @:cppNamespaceCode('
 static int	plgldr_refcount;
 static Handle plgldr_handle;
 ')
+#end
 class PLGLDR {
 	/**
-	 * Initializes Plugin Loader to Use Your Loader Settings, The result is returned to depend if something went wrong.
+	 * Initializes Plugin Loader.
+	 * On 3DS: Connects to the plg:ldr service port.
+	 * On Wii U: Does nothing (WUPS handles this automatically).
 	 */
 	public static function init():Result {
+		#if !wiiu
 		var result:Result = 0;
 		untyped __cpp__('
 			if (AtomicPostIncrement(&plgldr_refcount) == 0) {
@@ -26,12 +32,19 @@ class PLGLDR {
 			}
 		');
 		return result;
+		#else
+		trace("PLGLDR: Wii U uses WUPS for plugin loading (no init needed)");
+		return 0;
+		#end
 	}
 
 	/**
-	 * Exits Plugin Loader, nothing is returned if it's loaded.
+	 * Exits Plugin Loader.
+	 * On 3DS: Closes the plg:ldr service handle.
+	 * On Wii U: Does nothing.
 	 */
 	public static function exit() {
+		#if !wiiu
 		untyped __cpp__('
 			if (AtomicDecrement(&plgldr_refcount)) {
 				return;
@@ -40,19 +53,24 @@ class PLGLDR {
 			}
 			plgldr_handle = 0;
 		');
+		#else
+		#end
 	}
 
 	/**
-	 * Functions that displays a Luma3DS Message in the Bottom Screen.
+	 * Displays a notification message.
 	 * 
-	 * There can be a Prompt to exit out the Luma3DS Message, this can also be used for an error message or a menu or whatever you want.
+	 * On 3DS: Sends an IPC request to Luma3DS to show a message on the bottom screen.
+	 * On Wii U: Stubbed. To show real notifications on Wii U, you would use
+	 * the `libnotifications` library (OSDynLoad_Acquire("notifications", ...)).
 	 * 
-	 * @param title The title of the Body, it will colored in Dark Blue and is located in the Top Left.
-	 * @param message The message (body) of the Body, this will be colored white, used for informational stuff.
-	 * @param result The result to use in hexadecimal, leave as `0` to exclude using the error result.
-	 * @return Result to indicate if something went wrong or not.
+	 * @param title The title of the notification.
+	 * @param message The body of the notification.
+	 * @param result The result code to display (3DS only), leave as 0 to exclude.
+	 * @return Result to indicate success or failure.
 	 */
 	public static function displayMessage(title:String, message:String, result:Result = 0):Result {
+		#if !wiiu
 		var res:Result = 0;
 
 		untyped __cpp__('
@@ -69,5 +87,11 @@ class PLGLDR {
 			if (R_SUCCEEDED((res = svcSendSyncRequest(plgldr_handle)))) res = cmdBuf[1];
 		');
 		return res;
+		#else
+		//   OSDynLoad_Acquire("notifications.rpl", &handle);
+		//   OSDynLoad_FindExport(handle, ..., "NotificationModule_AddInfoNotification", ...);
+		trace('PLGLDR Notification: [$title] $message');
+		return 0;
+		#end
 	}
 }
