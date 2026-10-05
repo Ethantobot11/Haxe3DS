@@ -253,6 +253,23 @@ class Haxe3DS_Tool {
 				for (directories in ["export", "assets/romfs", "buildFiles"]) makeDirs(directories);
 				if (FileSystem.exists("assets")) recursiveCopyFiles("assets", "export");
 
+				if (isWiiU) {
+					var metaXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
+						'<app version="1">\n' +
+						'  <name>${project.metadata.title}</name>\n' +
+						'  <coder>${project.metadata.author}</coder>\n' +
+						'  <version>1.0.0</version>\n' +
+						'  <release_date>20240101000000</release_date>\n' +
+						'  <short_description>${project.metadata.description}</short_description>\n' +
+						'  <long_description>${project.metadata.description}</long_description>\n' +
+						'</app>';
+					File.saveContent("export/meta.xml", metaXml);
+					
+					if (FileSystem.exists("assets/icon.png")) {
+						File.saveBytes("export/icon.png", File.getBytes("assets/icon.png"));
+					}
+				}
+
 				var targetDefine = isWiiU ? (project.settings.compileAsPlugin ? "-D IS_WUPS_PLUGIN" : "-D IS_WUT_RPX") : (project.settings.compileAsPlugin ? "-D IS_CIA" : "-D IS_3DSX");
 				var platformDefine = isWiiU ? "-D wiiu\n-D cafe\n-D HAXEWIIU" : "-D nx\n-D haxe3ds";
 				
