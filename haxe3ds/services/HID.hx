@@ -43,6 +43,34 @@ typedef AngularRate = { var x:Int; var y:Int; var z:Int; }
 #else
 @:headerInclude("vpad/input.h")
 @:headerInclude("vpadbase/base.h")
+@:headerCode('
+#define KEY_A VPAD_BUTTON_A
+#define KEY_B VPAD_BUTTON_B
+#define KEY_X VPAD_BUTTON_X
+#define KEY_Y VPAD_BUTTON_Y
+#define KEY_L VPAD_BUTTON_L
+#define KEY_R VPAD_BUTTON_R
+#define KEY_ZL VPAD_BUTTON_ZL
+#define KEY_ZR VPAD_BUTTON_ZR
+#define KEY_UP VPAD_BUTTON_UP
+#define KEY_DOWN VPAD_BUTTON_DOWN
+#define KEY_LEFT VPAD_BUTTON_LEFT
+#define KEY_RIGHT VPAD_BUTTON_RIGHT
+#define KEY_START VPAD_BUTTON_PLUS
+#define KEY_SELECT VPAD_BUTTON_MINUS
+#define KEY_DUP VPAD_BUTTON_UP
+#define KEY_DDOWN VPAD_BUTTON_DOWN
+#define KEY_DLEFT VPAD_BUTTON_LEFT
+#define KEY_DRIGHT VPAD_BUTTON_RIGHT
+#define KEY_CPAD_UP VPAD_BUTTON_UP
+#define KEY_CPAD_DOWN VPAD_BUTTON_DOWN
+#define KEY_CPAD_LEFT VPAD_BUTTON_LEFT
+#define KEY_CPAD_RIGHT VPAD_BUTTON_RIGHT
+#define KEY_CSTICK_UP VPAD_BUTTON_UP
+#define KEY_CSTICK_DOWN VPAD_BUTTON_DOWN
+#define KEY_CSTICK_LEFT VPAD_BUTTON_LEFT
+#define KEY_CSTICK_RIGHT VPAD_BUTTON_RIGHT
+')
 #end
 class HID {
 	public static inline function scanInput() {
