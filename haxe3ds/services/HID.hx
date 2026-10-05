@@ -62,28 +62,30 @@ class HID {
 		return untyped __cpp__("(hidKeysDown() & ({0}))", key);
 		#else
 		return untyped __cpp__('
-			static VPADStatus vpadStatus;
-			static VPADReadError vpadError;
-			VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError);
-			uint32_t vpadKey = 0;
-			switch({0}) {
-				case 0x00000001: vpadKey = VPAD_BUTTON_A; break;
-				case 0x00000002: vpadKey = VPAD_BUTTON_B; break;
-				case 0x00000004: vpadKey = VPAD_BUTTON_X; break;
-				case 0x00000008: vpadKey = VPAD_BUTTON_Y; break;
-				case 0x00000010: vpadKey = VPAD_BUTTON_LEFT; break;
-				case 0x00000020: vpadKey = VPAD_BUTTON_RIGHT; break;
-				case 0x00000040: vpadKey = VPAD_BUTTON_UP; break;
-				case 0x00000080: vpadKey = VPAD_BUTTON_DOWN; break;
-				case 0x00000100: vpadKey = VPAD_BUTTON_ZL; break;
-				case 0x00000200: vpadKey = VPAD_BUTTON_ZR; break;
-				case 0x00000400: vpadKey = VPAD_BUTTON_L; break;
-				case 0x00000800: vpadKey = VPAD_BUTTON_R; break;
-				case 0x00001000: vpadKey = VPAD_BUTTON_PLUS; break;
-				case 0x00002000: vpadKey = VPAD_BUTTON_MINUS; break;
-				default: vpadKey = 0; break;
-			}
-			return (vpadStatus.trigger & vpadKey) != 0;
+			[&]() -> bool {
+				static VPADStatus vpadStatus;
+				static VPADReadError vpadError;
+				VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError);
+				uint32_t vpadKey = 0;
+				switch({0}) {
+					case 0x00000001: vpadKey = VPAD_BUTTON_A; break;
+					case 0x00000002: vpadKey = VPAD_BUTTON_B; break;
+					case 0x00000004: vpadKey = VPAD_BUTTON_X; break;
+					case 0x00000008: vpadKey = VPAD_BUTTON_Y; break;
+					case 0x00000010: vpadKey = VPAD_BUTTON_LEFT; break;
+					case 0x00000020: vpadKey = VPAD_BUTTON_RIGHT; break;
+					case 0x00000040: vpadKey = VPAD_BUTTON_UP; break;
+					case 0x00000080: vpadKey = VPAD_BUTTON_DOWN; break;
+					case 0x00000100: vpadKey = VPAD_BUTTON_ZL; break;
+					case 0x00000200: vpadKey = VPAD_BUTTON_ZR; break;
+					case 0x00000400: vpadKey = VPAD_BUTTON_L; break;
+					case 0x00000800: vpadKey = VPAD_BUTTON_R; break;
+					case 0x00001000: vpadKey = VPAD_BUTTON_PLUS; break;
+					case 0x00002000: vpadKey = VPAD_BUTTON_MINUS; break;
+					default: vpadKey = 0; break;
+				}
+				return (vpadStatus.trigger & vpadKey) != 0;
+			}()
 		', key);
 		#end
 	}
@@ -93,28 +95,30 @@ class HID {
 		return untyped __cpp__("(hidKeysHeld() & ({0}))", key);
 		#else
 		return untyped __cpp__('
-			static VPADStatus vpadStatus;
-			static VPADReadError vpadError;
-			VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError);
-			uint32_t vpadKey = 0;
-			switch({0}) {
-				case 0x00000001: vpadKey = VPAD_BUTTON_A; break;
-				case 0x00000002: vpadKey = VPAD_BUTTON_B; break;
-				case 0x00000004: vpadKey = VPAD_BUTTON_X; break;
-				case 0x00000008: vpadKey = VPAD_BUTTON_Y; break;
-				case 0x00000010: vpadKey = VPAD_BUTTON_LEFT; break;
-				case 0x00000020: vpadKey = VPAD_BUTTON_RIGHT; break;
-				case 0x00000040: vpadKey = VPAD_BUTTON_UP; break;
-				case 0x00000080: vpadKey = VPAD_BUTTON_DOWN; break;
-				case 0x00000100: vpadKey = VPAD_BUTTON_ZL; break;
-				case 0x00000200: vpadKey = VPAD_BUTTON_ZR; break;
-				case 0x00000400: vpadKey = VPAD_BUTTON_L; break;
-				case 0x00000800: vpadKey = VPAD_BUTTON_R; break;
-				case 0x00001000: vpadKey = VPAD_BUTTON_PLUS; break;
-				case 0x00002000: vpadKey = VPAD_BUTTON_MINUS; break;
-				default: vpadKey = 0; break;
-			}
-			return (vpadStatus.hold & vpadKey) != 0;
+			[&]() -> bool {
+				static VPADStatus vpadStatus;
+				static VPADReadError vpadError;
+				VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError);
+				uint32_t vpadKey = 0;
+				switch({0}) {
+					case 0x00000001: vpadKey = VPAD_BUTTON_A; break;
+					case 0x00000002: vpadKey = VPAD_BUTTON_B; break;
+					case 0x00000004: vpadKey = VPAD_BUTTON_X; break;
+					case 0x00000008: vpadKey = VPAD_BUTTON_Y; break;
+					case 0x00000010: vpadKey = VPAD_BUTTON_LEFT; break;
+					case 0x00000020: vpadKey = VPAD_BUTTON_RIGHT; break;
+					case 0x00000040: vpadKey = VPAD_BUTTON_UP; break;
+					case 0x00000080: vpadKey = VPAD_BUTTON_DOWN; break;
+					case 0x00000100: vpadKey = VPAD_BUTTON_ZL; break;
+					case 0x00000200: vpadKey = VPAD_BUTTON_ZR; break;
+					case 0x00000400: vpadKey = VPAD_BUTTON_L; break;
+					case 0x00000800: vpadKey = VPAD_BUTTON_R; break;
+					case 0x00001000: vpadKey = VPAD_BUTTON_PLUS; break;
+					case 0x00002000: vpadKey = VPAD_BUTTON_MINUS; break;
+					default: vpadKey = 0; break;
+				}
+				return (vpadStatus.hold & vpadKey) != 0;
+			}()
 		', key);
 		#end
 	}
@@ -124,28 +128,30 @@ class HID {
 		return untyped __cpp__("(hidKeysUp() & ({0}))", key);
 		#else
 		return untyped __cpp__('
-			static VPADStatus vpadStatus;
-			static VPADReadError vpadError;
-			VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError);
-			uint32_t vpadKey = 0;
-			switch({0}) {
-				case 0x00000001: vpadKey = VPAD_BUTTON_A; break;
-				case 0x00000002: vpadKey = VPAD_BUTTON_B; break;
-				case 0x00000004: vpadKey = VPAD_BUTTON_X; break;
-				case 0x00000008: vpadKey = VPAD_BUTTON_Y; break;
-				case 0x00000010: vpadKey = VPAD_BUTTON_LEFT; break;
-				case 0x00000020: vpadKey = VPAD_BUTTON_RIGHT; break;
-				case 0x00000040: vpadKey = VPAD_BUTTON_UP; break;
-				case 0x00000080: vpadKey = VPAD_BUTTON_DOWN; break;
-				case 0x00000100: vpadKey = VPAD_BUTTON_ZL; break;
-				case 0x00000200: vpadKey = VPAD_BUTTON_ZR; break;
-				case 0x00000400: vpadKey = VPAD_BUTTON_L; break;
-				case 0x00000800: vpadKey = VPAD_BUTTON_R; break;
-				case 0x00001000: vpadKey = VPAD_BUTTON_PLUS; break;
-				case 0x00002000: vpadKey = VPAD_BUTTON_MINUS; break;
-				default: vpadKey = 0; break;
-			}
-			return (vpadStatus.release & vpadKey) != 0;
+			[&]() -> bool {
+				static VPADStatus vpadStatus;
+				static VPADReadError vpadError;
+				VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError);
+				uint32_t vpadKey = 0;
+				switch({0}) {
+					case 0x00000001: vpadKey = VPAD_BUTTON_A; break;
+					case 0x00000002: vpadKey = VPAD_BUTTON_B; break;
+					case 0x00000004: vpadKey = VPAD_BUTTON_X; break;
+					case 0x00000008: vpadKey = VPAD_BUTTON_Y; break;
+					case 0x00000010: vpadKey = VPAD_BUTTON_LEFT; break;
+					case 0x00000020: vpadKey = VPAD_BUTTON_RIGHT; break;
+					case 0x00000040: vpadKey = VPAD_BUTTON_UP; break;
+					case 0x00000080: vpadKey = VPAD_BUTTON_DOWN; break;
+					case 0x00000100: vpadKey = VPAD_BUTTON_ZL; break;
+					case 0x00000200: vpadKey = VPAD_BUTTON_ZR; break;
+					case 0x00000400: vpadKey = VPAD_BUTTON_L; break;
+					case 0x00000800: vpadKey = VPAD_BUTTON_R; break;
+					case 0x00001000: vpadKey = VPAD_BUTTON_PLUS; break;
+					case 0x00002000: vpadKey = VPAD_BUTTON_MINUS; break;
+					default: vpadKey = 0; break;
+				}
+				return (vpadStatus.release & vpadKey) != 0;
+			}()
 		', key);
 		#end
 	}
