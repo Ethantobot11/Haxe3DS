@@ -62,7 +62,7 @@ $(BUILD): $(SRCFILES)
 
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).rpx $(TARGET).elf
+	@rm -fr $(BUILD) $(TARGET).rpx $(TARGET).wps $(TARGET).elf
 
 #---------------------------------------------------------------------------------
 else
@@ -70,9 +70,10 @@ else
 
 DEPENDS		:=	$(OFILES:.o=.d)
 
-all		:	$(OUTPUT).rpx
+all		:	$(OUTPUT).rpx $(OUTPUT).wps
 
 $(OUTPUT).rpx	:	$(OUTPUT).elf
+$(OUTPUT).wps	:	$(OUTPUT).elf
 $(OUTPUT).elf	:	$(OFILES)
 
 -include $(DEPENDS)
