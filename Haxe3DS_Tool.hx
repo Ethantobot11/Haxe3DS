@@ -143,7 +143,7 @@ class Haxe3DS_Tool {
 		} else {
 			trace("Warning: WIIU_COMMON_KEY not set, skipping WUP encryption");
 		}
-		return false
+		return false;
 	}
 
 	static function main() {
