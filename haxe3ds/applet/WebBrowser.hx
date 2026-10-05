@@ -10,8 +10,10 @@ using StringTools;
  * 
  * @since 1.5.0
  */
+#if HAXE3DS
 @:cppInclude("cstring")
 @:cppInclude("3ds.h")
+#end
 class WebBrowser {
 	/**
 	 * Maximum number of characters in a URL.
@@ -24,23 +26,18 @@ class WebBrowser {
 	 * @return `true` if it's restricted or config is `null`, `false` otherwise.
 	 */
 	public static function isRestricted():Bool {
+		#if HAXE3DS
 		final config:CFGParental = CFG.parentalControlsInfo;
 		if (config == null) return true;
 		return config.restriction.contains(INTERNET_BROWSER);
+		#else
+		// Wii U doesn't have this specific parental control check in the same way
+		return false;
+		#end
 	}
 
 	/**
 	 * Checks the URL in 6 ways.
-	 * 
-	 * The ways that'll be checked for the URL is if the URL:
-	 * - Is empty. (length == 0)
-	 * - Is longer than `MAX_LENGTH`. (length > `MAX_LENGTH`)
-	 * - Matches by the EReg Checking.
-	 * - Contains either `..` or `\\`
-	 * - Has a Value from Splitting `://` then at Index 1 then Splitting again but for `/` at index 0.
-	 * - Finally Checks by the Split Variable.
-	 * 
-	 * If one of those checks passes, it returns `false`, else it returns `true`.
 	 * 
 	 * @param url The URL to check for validation.
 	 * @return `true` if url is valid, `false` because if failed one of the tests above.
@@ -66,22 +63,24 @@ class WebBrowser {
 	}
 
 	/**
-	 * Launches the URL, and by that i mean it launches the applet "SPIDER" or "SKATER", this also calls `isURLValid` and skips if it it's invalid.
+	 * Launches the URL.
 	 * 
-	 * This allocates memory depending by the length of the URL String, Copies the URL to Buffer and Launches `APPID_WEB`.
-	 * 
-	 * Possible Result Variables:
-	 * - `0xD8A13FF5`: URL Provided is Invalid.
-	 * - `0xD8613FF3`: Allocating Failed, Possible due to Out of Memory.
+	 * On 3DS, this launches the "SPIDER" or "SKATER" applet.
+	 * On Wii U, this is stubbed and will simply trace the URL.
 	 * 
 	 * @param url The URL to launch.
-	 * @return The result received, if something has failed you should see the Possible Result Variables.
+	 * @return The result received.
 	 */
 	public static function launchURL(url:String):Result {
 		if (!isURLValid(url)) {
+			#if HAXE3DS
 			return untyped __cpp__('MAKERESULT(RL_PERMANENT, RS_INVALIDSTATE, RM_WEB_BROWSER, RD_INVALID_ADDRESS)');
+			#else
+			return 0xD8A13FF5;
+			#end
 		}
 
+		#if !wiiu
 		untyped __cpp__('
 			size_t urlLen = url.length + 1;
 			u8* buffer = (u8*)malloc(urlLen);
@@ -91,7 +90,10 @@ class WebBrowser {
 			aptLaunchSystemApplet(APPID_WEB, buffer, urlLen, 0);
 			free(buffer);
 		');
-
 		return 0;
+		#else
+		trace("WebBrowser.launchURL is stubbed on Wii U. Requested URL: " + url);
+		return 0;
+		#end
 	}
 }
