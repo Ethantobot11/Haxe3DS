@@ -38,30 +38,33 @@ typedef TouchPosition = { var px:Int; var py:Int; }
 typedef AccelVector = { var x:Int; var y:Int; var z:Int; }
 typedef AngularRate = { var x:Int; var y:Int; var z:Int; }
 
-#if HAXE3DS
+#if !HAXE3DS
 @:cppInclude("3ds.h")
 #else
 @:cppInclude("vpad/input.h")
-@:cppInclude("coreinit.h")
+@:cppInclude("vpadbase/base.h")
 #end
 class HID {
 	public static inline function scanInput() {
-		#if HAXE3DS
+		#if !wiiu
 		untyped __cpp__("hidScanInput(); irrstScanInput()");
 		#else
 		untyped __cpp__('
-			VPADStatus vpadStatus;
-			VPADReadError vpadError;
+			static VPADStatus vpadStatus;
+			static VPADReadError vpadError;
 			VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError);
 		');
 		#end
 	}
 
 	public static inline function keyPressed(key:UInt32):Bool {
-		#if HAXE3DS
+		#if !HAXE3DS
 		return untyped __cpp__("(hidKeysDown() & ({0}))", key);
 		#else
 		return untyped __cpp__('
+			static VPADStatus vpadStatus;
+			static VPADReadError vpadError;
+			VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError);
 			uint32_t vpadKey = 0;
 			switch({0}) {
 				case 0x00000001: vpadKey = VPAD_BUTTON_A; break;
@@ -86,10 +89,13 @@ class HID {
 	}
 
 	public static inline function keyHeld(key:UInt32):Bool {
-		#if HAXE3DS
+		#if !HAXE3DS
 		return untyped __cpp__("(hidKeysHeld() & ({0}))", key);
 		#else
 		return untyped __cpp__('
+			static VPADStatus vpadStatus;
+			static VPADReadError vpadError;
+			VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError);
 			uint32_t vpadKey = 0;
 			switch({0}) {
 				case 0x00000001: vpadKey = VPAD_BUTTON_A; break;
@@ -114,10 +120,13 @@ class HID {
 	}
 
 	public static inline function keyUp(key:UInt32):Bool {
-		#if HAXE3DS
+		#if !HAXE3DS
 		return untyped __cpp__("(hidKeysUp() & ({0}))", key);
 		#else
 		return untyped __cpp__('
+			static VPADStatus vpadStatus;
+			static VPADReadError vpadError;
+			VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError);
 			uint32_t vpadKey = 0;
 			switch({0}) {
 				case 0x00000001: vpadKey = VPAD_BUTTON_A; break;
@@ -143,7 +152,7 @@ class HID {
 
 	public static var touch(get, null):TouchPosition;
 	static function get_touch():TouchPosition {
-		#if HAXE3DS
+		#if !HAXE3DS
 		untyped __cpp__("
 			touchPosition temp;
 			hidTouchRead(&temp)
@@ -154,13 +163,13 @@ class HID {
 		};
 		#else
 		untyped __cpp__('
-			VPADStatus vpadStatus;
-			VPADReadError vpadError;
+			static VPADStatus vpadStatus;
+			static VPADReadError vpadError;
 			VPADRead(VPAD_CHAN_0, &vpadStatus, 1, &vpadError);
 		');
 		return {
-			px: untyped __cpp__('vpadStatus.tpData.px'),
-			py: untyped __cpp__('vpadStatus.tpData.py')
+			px: untyped __cpp__('vpadStatus.tpNormal.x'),
+			py: untyped __cpp__('vpadStatus.tpNormal.y')
 		};
 		#end
 	}
