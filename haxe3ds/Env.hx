@@ -1,5 +1,9 @@
 package haxe3ds;
 
+#if HAXE3DS
+@:headerInclude("3ds.h")
+#end
+
 class Env {
 	public static var is3DSX(get, null):Bool;
 	static inline function get_is3DSX():Bool {
@@ -17,7 +21,7 @@ class Env {
 		untyped __cpp__('
 			Handle lumaCheck;
 			isLuma = R_SUCCEEDED(svcConnectToPort(&lumaCheck, "hb:ldr"));
-			if(isLuma) svcCloseHandle(lumaCheck)
+			if(isLuma) svcCloseHandle(lumaCheck);
 		');
 		return isLuma;
 		#else
