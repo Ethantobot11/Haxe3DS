@@ -16,7 +16,7 @@ class APT {
 	public static var isNew3DS(get, null):Bool;
 	static function get_isNew3DS():Bool {
 		#if !wiiu
-		return untyped __cpp__('API_GETTER(bool, APT_CheckNew3DS, false)');
+		return untyped __cpp__('([&]() -> bool { bool isNew = false; APT_CheckNew3DS(&isNew); return isNew; })()');
 		#else
 		return true;
 		#end
@@ -25,7 +25,7 @@ class APT {
 	public static var programID(get, null):UInt64;
 	static function get_programID():UInt64 {
 		#if !wiiu
-		return untyped __cpp__('API_GETTER(u64, APT_GetProgramID, 0)');
+		return untyped __cpp__('([&]() -> u64 { u64 id = 0; APT_GetProgramID(&id); return id; })()');
 		#else
 		return untyped __cpp__('0x0005000010100000ULL');
 		#end
@@ -39,9 +39,9 @@ class APT {
 		return true;
 		#end
 	}
-	static function set_homeMenu(homeMenu):Bool {
+	static function set_homeMenu(homeMenu:Bool):Bool {
 		#if !wiiu
-		untyped __cpp__('aptSetHomeAllowed(homeMenu)');
+		untyped __cpp__('aptSetHomeAllowed({0})', homeMenu);
 		#end
 		return homeMenu;
 	}
