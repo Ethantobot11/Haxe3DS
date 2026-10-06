@@ -133,16 +133,31 @@ class Haxe3DS_Tool {
 		}
 	}
 
-		static function buildWUP(project:Haxe3DSProject, titleId:String = "0005000010100000"):Bool {
+	static function buildWUP(project:Haxe3DSProject, titleId:String = "0005000010100000"):Bool {
 		var wupDir = "wup_build";
 		makeDirs('$wupDir/code');
 		makeDirs('$wupDir/meta');
 		makeDirs('$wupDir/content');
 		
-		if (FileSystem.exists("output/output.rpx")) {
-			File.saveBytes('$wupDir/code/Deltarune.rpx', File.getBytes("output/output.rpx"));
-		} else {
-			trace("ERROR: output.rpx not found in output/ directory!");
+		var rpxPaths = ["output/output.rpx", "output.rpx", "../buildFiles/output.rpx"];
+		var foundRpx = false;
+		
+		for (path in rpxPaths) {
+			if (FileSystem.exists(path)) {
+				trace("SUCCESS: Found .rpx at: " + path);
+				File.saveBytes('$wupDir/code/Deltarune.rpx', File.getBytes(path));
+				foundRpx = true;
+				break;
+			}
+		}
+		
+		if (!foundRpx) {
+			trace("ERROR: output.rpx not found! Checked: " + rpxPaths.join(", "));
+			if (FileSystem.exists("output")) {
+				trace("DEBUG - Contents of 'output/' directory: " + FileSystem.readDirectory("output").join(", "));
+			} else {
+				trace("DEBUG - 'output/' directory does not exist!");
+			}
 			return false;
 		}
 		
