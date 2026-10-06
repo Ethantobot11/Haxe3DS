@@ -171,11 +171,142 @@ class Haxe3DS_Tool {
 		var metaXml = '<?xml version="1.0" encoding="utf-8"?>\n' +
 			'<menu type="complex" access="777">\n' +
 			'  <version type="unsignedInt" length="4">33</version>\n' +
-			'  <product_code type="string" length="16">WUP-N-HAXE</product_code>\n' +
+			'  <product_code type="string" length="32">WUP-N-HAXE</product_code>\n' +
+			'  <content_platform type="string" length="32">WUP</content_platform>\n' +
+			'  <company_code type="string" length="8">ZZZZ</company_code>\n' +
+			'  <mastering_date type="string" length="32">2024-01-01 12.00.00</mastering_date>\n' +
+			'  <logo_type type="unsignedInt" length="4">0</logo_type>\n' +
+			'  <app_launch_type type="hexBinary" length="4">00000000</app_launch_type>\n' +
+			'  <invisible_flag type="hexBinary" length="4">00000000</invisible_flag>\n' +
+			'  <no_managed_flag type="hexBinary" length="4">00000000</no_managed_flag>\n' +
+			'  <no_event_log type="hexBinary" length="4">00000000</no_event_log>\n' +
+			'  <no_icon_database type="hexBinary" length="4">00000000</no_icon_database>\n' +
+			'  <launching_flag type="hexBinary" length="4">00000004</launching_flag>\n' +
+			'  <install_flag type="hexBinary" length="4">00000000</install_flag>\n' +
+			'  <closing_msg type="unsignedInt" length="4">0</closing_msg>\n' +
+			'  <title_version type="unsignedInt" length="4">0</title_version>\n' +
 			'  <title_id type="hexBinary" length="8">$titleId</title_id>\n' +
-			'  <title_version type="hexBinary" length="2">0000</title_version>\n' +
 			'  <group_id type="hexBinary" length="4">00001000</group_id>\n' +
-			'  <region type="hexBinary" length="4">00000002</region>\n' +
+			'  <boss_id type="hexBinary" length="8">0000000000000000</boss_id>\n' +
+			'  <os_version type="hexBinary" length="8">000500101000400A</os_version>\n' +
+			'  <app_size type="hexBinary" length="8">0000000000000000</app_size>\n' +
+			'  <common_save_size type="hexBinary" length="8">0000000000400000</common_save_size>\n' +
+			'  <account_save_size type="hexBinary" length="8">0000000000200000</account_save_size>\n' +
+			'  <common_boss_size type="hexBinary" length="8">0000000000000000</common_boss_size>\n' +
+			'  <account_boss_size type="hexBinary" length="8">0000000000000000</account_boss_size>\n' +
+			'  <save_no_rollback type="unsignedInt" length="4">0</save_no_rollback>\n' +
+			'  <join_game_id type="hexBinary" length="4">00000000</join_game_id>\n' +
+			'  <join_game_mode_mask type="hexBinary" length="8">0000000000000000</join_game_mode_mask>\n' +
+			'  <bg_daemon_enable type="unsignedInt" length="4">1</bg_daemon_enable>\n' +
+			'  <olv_accesskey type="unsignedInt" length="4">0</olv_accesskey>\n' +
+			'  <wood_tin type="unsignedInt" length="4">0</wood_tin>\n' +
+			'  <e_manual type="unsignedInt" length="4">1</e_manual>\n' +
+			'  <e_manual_version type="unsignedInt" length="4">0</e_manual_version>\n' +
+			'  <region type="hexBinary" length="4">FFFFFFFF</region>\n' +
+			'  <pc_cero type="unsignedInt" length="4">0</pc_cero>\n' +
+			'  <pc_esrb type="unsignedInt" length="4">0</pc_esrb>\n' +
+			'  <pc_bbfc type="unsignedInt" length="4">192</pc_bbfc>\n' +
+			'  <pc_usk type="unsignedInt" length="4">0</pc_usk>\n' +
+			'  <pc_pegi_gen type="unsignedInt" length="4">0</pc_pegi_gen>\n' +
+			'  <pc_pegi_fin type="unsignedInt" length="4">192</pc_pegi_fin>\n' +
+			'  <pc_pegi_prt type="unsignedInt" length="4">0</pc_pegi_prt>\n' +
+			'  <pc_pegi_bbfc type="unsignedInt" length="4">0</pc_pegi_bbfc>\n' +
+			'  <pc_cob type="unsignedInt" length="4">0</pc_cob>\n' +
+			'  <pc_grb type="unsignedInt" length="4">192</pc_grb>\n' +
+			'  <pc_cgsrr type="unsignedInt" length="4">192</pc_cgsrr>\n' +
+			'  <pc_oflc type="unsignedInt" length="4">0</pc_oflc>\n' +
+			'  <pc_reserved0 type="unsignedInt" length="4">192</pc_reserved0>\n' +
+			'  <pc_reserved1 type="unsignedInt" length="4">192</pc_reserved1>\n' +
+			'  <pc_reserved2 type="unsignedInt" length="4">192</pc_reserved2>\n' +
+			'  <pc_reserved3 type="unsignedInt" length="4">192</pc_reserved3>\n' +
+			'  <ext_dev_nunchaku type="unsignedInt" length="4">0</ext_dev_nunchaku>\n' +
+			'  <ext_dev_classic type="unsignedInt" length="4">0</ext_dev_classic>\n' +
+			'  <ext_dev_urcc type="unsignedInt" length="4">0</ext_dev_urcc>\n' +
+			'  <ext_dev_board type="unsignedInt" length="4">0</ext_dev_board>\n' +
+			'  <ext_dev_usb_keyboard type="unsignedInt" length="4">0</ext_dev_usb_keyboard>\n' +
+			'  <ext_dev_etc type="unsignedInt" length="4">0</ext_dev_etc>\n' +
+			'  <ext_dev_etc_name type="string" length="512">EtcDevice</ext_dev_etc_name>\n' +
+			'  <eula_version type="unsignedInt" length="4">0</eula_version>\n' +
+			'  <drc_use type="unsignedInt" length="4">1</drc_use>\n' +
+			'  <network_use type="unsignedInt" length="4">0</network_use>\n' +
+			'  <online_account_use type="unsignedInt" length="4">0</online_account_use>\n' +
+			'  <direct_boot type="unsignedInt" length="4">0</direct_boot>\n' +
+			'  <reserved_flag0 type="hexBinary" length="4">00000000</reserved_flag0>\n' +
+			'  <reserved_flag1 type="hexBinary" length="4">00000000</reserved_flag1>\n' +
+			'  <reserved_flag2 type="hexBinary" length="4">00000000</reserved_flag2>\n' +
+			'  <reserved_flag3 type="hexBinary" length="4">00000000</reserved_flag3>\n' +
+			'  <reserved_flag4 type="hexBinary" length="4">00000000</reserved_flag4>\n' +
+			'  <reserved_flag5 type="hexBinary" length="4">00000000</reserved_flag5>\n' +
+			'  <reserved_flag6 type="hexBinary" length="4">00000003</reserved_flag6>\n' +
+			'  <reserved_flag7 type="hexBinary" length="4">00000000</reserved_flag7>\n' +
+			'  <longname_ja type="string" length="512">${project.metadata.title}</longname_ja>\n' +
+			'  <longname_en type="string" length="512">${project.metadata.title}</longname_en>\n' +
+			'  <longname_fr type="string" length="512">${project.metadata.title}</longname_fr>\n' +
+			'  <longname_de type="string" length="512">${project.metadata.title}</longname_de>\n' +
+			'  <longname_it type="string" length="512">${project.metadata.title}</longname_it>\n' +
+			'  <longname_es type="string" length="512">${project.metadata.title}</longname_es>\n' +
+			'  <longname_zhs type="string" length="512">${project.metadata.title}</longname_zhs>\n' +
+			'  <longname_ko type="string" length="512">${project.metadata.title}</longname_ko>\n' +
+			'  <longname_nl type="string" length="512">${project.metadata.title}</longname_nl>\n' +
+			'  <longname_pt type="string" length="512">${project.metadata.title}</longname_pt>\n' +
+			'  <longname_ru type="string" length="512">${project.metadata.title}</longname_ru>\n' +
+			'  <longname_zht type="string" length="512">${project.metadata.title}</longname_zht>\n' +
+			'  <shortname_ja type="string" length="256">${project.metadata.title}</shortname_ja>\n' +
+			'  <shortname_en type="string" length="256">${project.metadata.title}</shortname_en>\n' +
+			'  <shortname_fr type="string" length="256">${project.metadata.title}</shortname_fr>\n' +
+			'  <shortname_de type="string" length="256">${project.metadata.title}</shortname_de>\n' +
+			'  <shortname_it type="string" length="256">${project.metadata.title}</shortname_it>\n' +
+			'  <shortname_es type="string" length="256">${project.metadata.title}</shortname_es>\n' +
+			'  <shortname_zhs type="string" length="256">${project.metadata.title}</shortname_zhs>\n' +
+			'  <shortname_ko type="string" length="256">${project.metadata.title}</shortname_ko>\n' +
+			'  <shortname_nl type="string" length="256">${project.metadata.title}</shortname_nl>\n' +
+			'  <shortname_pt type="string" length="256">${project.metadata.title}</shortname_pt>\n' +
+			'  <shortname_ru type="string" length="256">${project.metadata.title}</shortname_ru>\n' +
+			'  <shortname_zht type="string" length="256">${project.metadata.title}</shortname_zht>\n' +
+			'  <publisher_ja type="string" length="256">${project.metadata.author}</publisher_ja>\n' +
+			'  <publisher_en type="string" length="256">${project.metadata.author}</publisher_en>\n' +
+			'  <publisher_fr type="string" length="256">${project.metadata.author}</publisher_fr>\n' +
+			'  <publisher_de type="string" length="256">${project.metadata.author}</publisher_de>\n' +
+			'  <publisher_it type="string" length="256">${project.metadata.author}</publisher_it>\n' +
+			'  <publisher_es type="string" length="256">${project.metadata.author}</publisher_es>\n' +
+			'  <publisher_zhs type="string" length="256">${project.metadata.author}</publisher_zhs>\n' +
+			'  <publisher_ko type="string" length="256">${project.metadata.author}</publisher_ko>\n' +
+			'  <publisher_nl type="string" length="256">${project.metadata.author}</publisher_nl>\n' +
+			'  <publisher_pt type="string" length="256">${project.metadata.author}</publisher_pt>\n' +
+			'  <publisher_ru type="string" length="256">${project.metadata.author}</publisher_ru>\n' +
+			'  <publisher_zht type="string" length="256">${project.metadata.author}</publisher_zht>\n' +
+			'  <add_on_unique_id0 type="hexBinary" length="4">00000000</add_on_unique_id0>\n' +
+			'  <add_on_unique_id1 type="hexBinary" length="4">00000000</add_on_unique_id1>\n' +
+			'  <add_on_unique_id2 type="hexBinary" length="4">00000000</add_on_unique_id2>\n' +
+			'  <add_on_unique_id3 type="hexBinary" length="4">00000000</add_on_unique_id3>\n' +
+			'  <add_on_unique_id4 type="hexBinary" length="4">00000000</add_on_unique_id4>\n' +
+			'  <add_on_unique_id5 type="hexBinary" length="4">00000000</add_on_unique_id5>\n' +
+			'  <add_on_unique_id6 type="hexBinary" length="4">00000000</add_on_unique_id6>\n' +
+			'  <add_on_unique_id7 type="hexBinary" length="4">00000000</add_on_unique_id7>\n' +
+			'  <add_on_unique_id8 type="hexBinary" length="4">00000000</add_on_unique_id8>\n' +
+			'  <add_on_unique_id9 type="hexBinary" length="4">00000000</add_on_unique_id9>\n' +
+			'  <add_on_unique_id10 type="hexBinary" length="4">00000000</add_on_unique_id10>\n' +
+			'  <add_on_unique_id11 type="hexBinary" length="4">00000000</add_on_unique_id11>\n' +
+			'  <add_on_unique_id12 type="hexBinary" length="4">00000000</add_on_unique_id12>\n' +
+			'  <add_on_unique_id13 type="hexBinary" length="4">00000000</add_on_unique_id13>\n' +
+			'  <add_on_unique_id14 type="hexBinary" length="4">00000000</add_on_unique_id14>\n' +
+			'  <add_on_unique_id15 type="hexBinary" length="4">00000000</add_on_unique_id15>\n' +
+			'  <add_on_unique_id16 type="hexBinary" length="4">00000000</add_on_unique_id16>\n' +
+			'  <add_on_unique_id17 type="hexBinary" length="4">00000000</add_on_unique_id17>\n' +
+			'  <add_on_unique_id18 type="hexBinary" length="4">00000000</add_on_unique_id18>\n' +
+			'  <add_on_unique_id19 type="hexBinary" length="4">00000000</add_on_unique_id19>\n' +
+			'  <add_on_unique_id20 type="hexBinary" length="4">00000000</add_on_unique_id20>\n' +
+			'  <add_on_unique_id21 type="hexBinary" length="4">00000000</add_on_unique_id21>\n' +
+			'  <add_on_unique_id22 type="hexBinary" length="4">00000000</add_on_unique_id22>\n' +
+			'  <add_on_unique_id23 type="hexBinary" length="4">00000000</add_on_unique_id23>\n' +
+			'  <add_on_unique_id24 type="hexBinary" length="4">00000000</add_on_unique_id24>\n' +
+			'  <add_on_unique_id25 type="hexBinary" length="4">00000000</add_on_unique_id25>\n' +
+			'  <add_on_unique_id26 type="hexBinary" length="4">00000000</add_on_unique_id26>\n' +
+			'  <add_on_unique_id27 type="hexBinary" length="4">00000000</add_on_unique_id27>\n' +
+			'  <add_on_unique_id28 type="hexBinary" length="4">00000000</add_on_unique_id28>\n' +
+			'  <add_on_unique_id29 type="hexBinary" length="4">00000000</add_on_unique_id29>\n' +
+			'  <add_on_unique_id30 type="hexBinary" length="4">00000000</add_on_unique_id30>\n' +
+			'  <add_on_unique_id31 type="hexBinary" length="4">00000000</add_on_unique_id31>\n' +
 			'</menu>';
 		File.saveContent('$wupDir/meta/meta.xml', metaXml);
 		
@@ -185,33 +316,42 @@ class Haxe3DS_Tool {
 			execute('convert assets/icon.png -resize 1280x720 $wupDir/meta/bootTvTex.tga');
 		}
 		
-		var appName = project.metadata.title.length > 16 ? project.metadata.title.substring(0, 16) : project.metadata.title;
-		var appCoder = project.metadata.author.length > 16 ? project.metadata.author.substring(0, 16) : project.metadata.author;
-		var appShortDesc = project.metadata.description.length > 256 ? project.metadata.description.substring(0, 256) : project.metadata.description;
-		var appLongDesc = project.metadata.description.length > 512 ? project.metadata.description.substring(0, 512) : project.metadata.description;
-
 		var appXml = '<?xml version="1.0" encoding="utf-8"?>\n' +
-			'<app version="1">\n' +
-			'  <name type="string" length="16">$appName</name>\n' +
-			'  <coder type="string" length="16">$appCoder</coder>\n' +
-			'  <version type="unsignedInt" length="4">33</version>\n' +
-			'  <release_date type="unsignedInt" length="4">20240101</release_date>\n' +
-			'  <short_description type="string" length="256">$appShortDesc</short_description>\n' +
-			'  <long_description type="string" length="512">$appLongDesc</long_description>\n' +
+			'<app type="complex" access="777">\n' +
+			'  <version type="unsignedInt" length="4">16</version>\n' +
+			'  <os_version type="hexBinary" length="8">000500101000400A</os_version>\n' +
+			'  <title_id type="hexBinary" length="8">$titleId</title_id>\n' +
+			'  <title_version type="hexBinary" length="2">0000</title_version>\n' +
+			'  <sdk_version type="unsignedInt" length="4">21213</sdk_version>\n' +
+			'  <app_type type="hexBinary" length="4">80000000</app_type>\n' +
+			'  <group_id type="hexBinary" length="4">00001000</group_id>\n' +
+			'  <os_mask type="hexBinary" length="32">0</os_mask>\n' +
+			'  <common_id type="hexBinary" length="8">0000000000000000</common_id>\n' +
 			'</app>';
 		File.saveContent('$wupDir/code/app.xml', appXml);
 		
 		var cosXml = '<?xml version="1.0" encoding="utf-8"?>\n' +
-			'<app version="1">\n' +
-			'  <title_id type="hexBinary" length="8">$titleId</title_id>\n' +
-			'  <title_version type="hexBinary" length="2">0000</title_version>\n' +
-			'  <group_id type="hexBinary" length="4">00001000</group_id>\n' +
-			'  <os_version type="hexBinary" length="4">00000000</os_version>\n' +
-			'  <app_type type="hexBinary" length="4">80000000</app_type>\n' +
-			'  <cmdFlags type="hexBinary" length="4">00000000</cmdFlags>\n' +
-			'  <required_system_version type="hexBinary" length="8">0000000000000000</required_system_version>\n' +
-			'  <remaster_version type="hexBinary" length="4">00000000</remaster_version>\n' +
-			'  <fw_version type="hexBinary" length="4">00000000</fw_version>\n' +
+			'<app type="complex" access="777">\n' +
+			'  <version type="unsignedInt" length="4">20</version>\n' +
+			'  <cmdFlags type="unsignedInt" length="4">0</cmdFlags>\n' +
+			'  <argstr type="string" length="4096">Deltarune.rpx</argstr>\n' +
+			'  <avail_size type="hexBinary" length="4">00000000</avail_size>\n' +
+			'  <codegen_size type="hexBinary" length="4">00000000</codegen_size>\n' +
+			'  <codegen_core type="hexBinary" length="4">00000001</codegen_core>\n' +
+			'  <max_size type="hexBinary" length="4">80000000</max_size>\n' +
+			'  <max_codesize type="hexBinary" length="4">0e000000</max_codesize>\n' +
+			'  <overlay_arena type="hexBinary" length="4">00000000</overlay_arena>\n' +
+			'  <default_stack0_size type="hexBinary" length="4">00000000</default_stack0_size>\n' +
+			'  <default_stack1_size type="hexBinary" length="4">00000000</default_stack1_size>\n' +
+			'  <default_stack2_size type="hexBinary" length="4">00000000</default_stack2_size>\n' +
+			'  <default_redzone0_size type="hexBinary" length="4">00000000</default_redzone0_size>\n' +
+			'  <default_redzone1_size type="hexBinary" length="4">00000000</default_redzone1_size>\n' +
+			'  <default_redzone2_size type="hexBinary" length="4">00000000</default_redzone2_size>\n' +
+			'  <exception_stack0_size type="hexBinary" length="4">00001000</exception_stack0_size>\n' +
+			'  <exception_stack1_size type="hexBinary" length="4">00001000</exception_stack1_size>\n' +
+			'  <exception_stack2_size type="hexBinary" length="4">00001000</exception_stack2_size>\n' +
+			'  <num_codearea_heap_blocks type="unsignedInt" length="4">0</num_codearea_heap_blocks>\n' +
+			'  <num_workarea_heap_blocks type="unsignedInt" length="4">0</num_workarea_heap_blocks>\n' +
 			'</app>';
 		File.saveContent('$wupDir/code/cos.xml', cosXml);
 		
