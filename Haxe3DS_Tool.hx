@@ -357,7 +357,10 @@ class Haxe3DS_Tool {
 		
 		var commonKey = Sys.getEnv("WIIU_COMMON_KEY");
 		
-		var cmd = 'java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in "$wupDir" -out "installable_build/$titleId"';
+		var outDir = "../installable_build/$titleId";
+		makeDirs(outDir);
+		
+		var cmd = 'java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in "$wupDir" -out "$outDir"';
 		
 		if (commonKey != null && commonKey.trim() != "") {
 			cmd += ' -encryptKeyWith "$commonKey"';
@@ -368,7 +371,7 @@ class Haxe3DS_Tool {
 
 		var success = execute(cmd);
 		if (success) {
-			trace("WUP package built successfully at installable_build/$titleId !");
+			trace("WUP package built successfully at $outDir !");
 			return true;
 		} else {
 			trace("ERROR: NUSPacker failed to build the WUP package.");
