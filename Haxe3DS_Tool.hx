@@ -321,11 +321,11 @@ class Haxe3DS_Tool {
 			'  <version type="unsignedInt" length="4">16</version>\n' +
 			'  <os_version type="hexBinary" length="8">000500101000400A</os_version>\n' +
 			'  <title_id type="hexBinary" length="8">$titleId</title_id>\n' +
-			'  <title_version type="hexBinary" length="2">0000</title_version>\n' +
+			'  <title_version type="hexBinary" length="2">00</title_version>\n' +
 			'  <sdk_version type="unsignedInt" length="4">21213</sdk_version>\n' +
 			'  <app_type type="hexBinary" length="4">80000000</app_type>\n' +
 			'  <group_id type="hexBinary" length="4">00001000</group_id>\n' +
-			'  <os_mask type="hexBinary" length="32">0</os_mask>\n' +
+			'  <os_mask type="hexBinary" length="32">0000000000000000000000000000000000000000000000000000000000000000</os_mask>\n' +
 			'  <common_id type="hexBinary" length="8">0000000000000000</common_id>\n' +
 			'</app>';
 		File.saveContent('$wupDir/code/app.xml', appXml);
