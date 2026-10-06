@@ -191,16 +191,24 @@ class Haxe3DS_Tool {
 		}
 		
 		var commonKey = Sys.getEnv("WIIU_COMMON_KEY");
-		if (commonKey != null) {
-			var success = execute('java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in "$wupDir" -out "installable_build/$titleId" -encryptKeyWith "$commonKey"');
-			if (success) {
-				trace("WUP package built successfully at installable_build/$titleId !");
-				return true;
-			}
+		
+		var cmd = 'java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in "$wupDir" -out "installable_build/$titleId"';
+		
+		if (commonKey != null && commonKey.trim() != "") {
+			cmd += ' -encryptKeyWith "$commonKey"';
+			trace("Using provided WIIU_COMMON_KEY for encryption.");
 		} else {
-			trace("Warning: WIIU_COMMON_KEY not set, skipping WUP encryption");
+			trace("Warning: WIIU_COMMON_KEY not set or empty. Building unencrypted WUP (perfectly fine for homebrew/testing).");
 		}
-		return false;
+
+		var success = execute(cmd);
+		if (success) {
+			trace("WUP package built successfully at installable_build/$titleId !");
+			return true;
+		} else {
+			trace("ERROR: NUSPacker failed to build the WUP package.");
+			return false;
+		}
 	}
 
 	static function main() {
