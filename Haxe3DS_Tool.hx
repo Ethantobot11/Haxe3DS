@@ -133,7 +133,7 @@ class Haxe3DS_Tool {
 		}
 	}
 
-	static function buildWUP(project:Haxe3DSProject, titleId:String = "0005000010100000"):Bool {
+	static function buildWUP(project:Haxe3DSProject, titleId:String = "0005000010100100"):Bool {
 		var wupDir = "wup_build";
 		makeDirs('$wupDir/code');
 		makeDirs('$wupDir/meta');
@@ -165,14 +165,14 @@ class Haxe3DS_Tool {
 			recursiveCopyFiles("assets", '$wupDir/content/assets');
 		}
 		if (FileSystem.exists("romfs")) {
-			recursiveCopyFiles("romfs", '$wupDir/content');
+			recursiveCopyFiles("romfs", '$Dir/content');
 		}
 		
 		var metaXml = '<?xml version="1.0" encoding="utf-8"?>\n' +
 			'<menu type="complex" access="777">\n' +
 			'  <version type="unsignedInt" length="4">33</version>\n' +
-			'  <product_code type="string" length="32">WUP-N-HAXE</product_code>\n' +
-			'  <content_platform type="string" length="32">WUP</content_platform>\n' +
+			'  <product_code type="string" length="32">-N-HAXE</product_code>\n' +
+			'  <content_platform type="string" length="32"></content_platform>\n' +
 			'  <company_code type="string" length="8">ZZZZ</company_code>\n' +
 			'  <mastering_date type="string" length="32">2024-01-01 12.00.00</mastering_date>\n' +
 			'  <logo_type type="unsignedInt" length="4">0</logo_type>\n' +
@@ -308,12 +308,12 @@ class Haxe3DS_Tool {
 			'  <add_on_unique_id30 type="hexBinary" length="4">00000000</add_on_unique_id30>\n' +
 			'  <add_on_unique_id31 type="hexBinary" length="4">00000000</add_on_unique_id31>\n' +
 			'</menu>';
-		File.saveContent('$wupDir/meta/meta.xml', metaXml);
+		File.saveContent('$Dir/meta/meta.xml', metaXml);
 		
 		if (FileSystem.exists("assets/icon.png")) {
-			execute('convert assets/icon.png -resize 128x128 $wupDir/meta/iconTex.tga');
-			execute('convert assets/icon.png -resize 854x480 $wupDir/meta/bootDrcTex.tga');
-			execute('convert assets/icon.png -resize 1280x720 $wupDir/meta/bootTvTex.tga');
+			execute('convert assets/icon.png -resize 128x128 $Dir/meta/iconTex.tga');
+			execute('convert assets/icon.png -resize 854x480 $Dir/meta/bootDrcTex.tga');
+			execute('convert assets/icon.png -resize 1280x720 $Dir/meta/bootTvTex.tga');
 		}
 		
 		var appXml = '<?xml version="1.0" encoding="utf-8"?>\n' +
@@ -321,14 +321,14 @@ class Haxe3DS_Tool {
 			'  <version type="unsignedInt" length="4">16</version>\n' +
 			'  <os_version type="hexBinary" length="8">000500101000400A</os_version>\n' +
 			'  <title_id type="hexBinary" length="8">' + titleId + '</title_id>\n' +
-			'  <title_version type="hexBinary" length="2">00</title_version>\n' +
+			'  <title_version type="hexBinary" length="2">0000</title_version>\n' +
 			'  <sdk_version type="unsignedInt" length="4">21213</sdk_version>\n' +
 			'  <app_type type="hexBinary" length="4">80000000</app_type>\n' +
 			'  <group_id type="hexBinary" length="4">00001000</group_id>\n' +
 			'  <os_mask type="hexBinary" length="32">0000000000000000000000000000000000000000000000000000000000000000</os_mask>\n' +
 			'  <common_id type="hexBinary" length="8">0000000000000000</common_id>\n' +
 			'</app>';
-		File.saveContent('$wupDir/code/app.xml', appXml);
+		File.saveContent('$Dir/code/app.xml', appXml);
 		
 		var cosXml = '<?xml version="1.0" encoding="utf-8"?>\n' +
 			'<app type="complex" access="777">\n' +
@@ -353,7 +353,7 @@ class Haxe3DS_Tool {
 			'  <num_codearea_heap_blocks type="unsignedInt" length="4">0</num_codearea_heap_blocks>\n' +
 			'  <num_workarea_heap_blocks type="unsignedInt" length="4">0</num_workarea_heap_blocks>\n' +
 			'</app>';
-		File.saveContent('$wupDir/code/cos.xml', cosXml);
+		File.saveContent('$Dir/code/cos.xml', cosXml);
 		
 		var commonKey = Sys.getEnv("WIIU_COMMON_KEY");
 		
@@ -365,7 +365,7 @@ class Haxe3DS_Tool {
 			trace("Created encryptKeyWith file with provided key.");
 		}
 		
-		var cmd = "java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in \"" + wupDir + "\" -out \"" + outDir + "\"";
+		var cmd = "java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in \"" + Dir + "\" -out \"" + outDir + "\"";
 		
 		var success = execute(cmd);
 		
@@ -374,10 +374,10 @@ class Haxe3DS_Tool {
 		}
 
 		if (success) {
-			trace("WUP package built successfully at " + outDir + " !");
+			trace(" package built successfully at " + outDir + " !");
 			return true;
 		} else {
-			trace("ERROR: NUSPacker failed to build the WUP package.");
+			trace("ERROR: NUSPacker failed to build the  package.");
 			return false;
 		}
 	}
@@ -560,7 +560,7 @@ class Haxe3DS_Tool {
 				sanityCheck("Finally Compiling to Working Application", () -> execute('make clean && make $makeTarget'), "Failed to compile!");
 
 				if (isWiiU && project.settings.compileAsWUP) {
-					sanityCheck("Building Installable WUP Package", () -> buildWUP(project, "0005000010100000"), "Failed to build WUP!");
+					sanityCheck("Building Installable WUP Package", () -> buildWUP(project, "0005000010100100"), "Failed to build WUP!");
 				}
 
 				recursiveCopyFiles("output", "../buildFiles");
