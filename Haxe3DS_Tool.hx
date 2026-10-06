@@ -185,18 +185,19 @@ class Haxe3DS_Tool {
 			execute('convert assets/icon.png -resize 1280x720 $wupDir/meta/bootTvTex.tga');
 		}
 		
+		var appName = project.metadata.title.length > 16 ? project.metadata.title.substring(0, 16) : project.metadata.title;
+		var appCoder = project.metadata.author.length > 16 ? project.metadata.author.substring(0, 16) : project.metadata.author;
+		var appShortDesc = project.metadata.description.length > 256 ? project.metadata.description.substring(0, 256) : project.metadata.description;
+		var appLongDesc = project.metadata.description.length > 512 ? project.metadata.description.substring(0, 512) : project.metadata.description;
+
 		var appXml = '<?xml version="1.0" encoding="utf-8"?>\n' +
 			'<app version="1">\n' +
-			'  <title_id type="hexBinary" length="8">$titleId</title_id>\n' +
-			'  <title_version type="hexBinary" length="2">0000</title_version>\n' +
-			'  <title_type type="hexBinary" length="4">0000000E</title_type>\n' +
-			'  <group_id type="hexBinary" length="4">00001000</group_id>\n' +
-			'  <os_version type="hexBinary" length="4">00000000</os_version>\n' +
-			'  <app_type type="hexBinary" length="4">80000000</app_type>\n' +
-			'  <cmdFlags type="hexBinary" length="4">00000000</cmdFlags>\n' +
-			'  <required_system_version type="hexBinary" length="8">0000000000000000</required_system_version>\n' +
-			'  <remaster_version type="hexBinary" length="4">00000000</remaster_version>\n' +
-			'  <fw_version type="hexBinary" length="4">00000000</fw_version>\n' +
+			'  <name type="string" length="16">$appName</name>\n' +
+			'  <coder type="string" length="16">$appCoder</coder>\n' +
+			'  <version type="unsignedInt" length="4">33</version>\n' +
+			'  <release_date type="unsignedInt" length="4">20240101</release_date>\n' +
+			'  <short_description type="string" length="256">$appShortDesc</short_description>\n' +
+			'  <long_description type="string" length="512">$appLongDesc</long_description>\n' +
 			'</app>';
 		File.saveContent('$wupDir/code/app.xml', appXml);
 		
