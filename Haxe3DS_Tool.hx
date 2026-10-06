@@ -134,81 +134,105 @@ class Haxe3DS_Tool {
 	}
 
 	static function buildWUP(project:Haxe3DSProject, titleId:String = "0005000010100000"):Bool {
-		var wupDir = "wup_build";
-		makeDirs('$wupDir/code');
-		makeDirs('$wupDir/meta');
-		makeDirs('$wupDir/content');
-		
-		var rpxPaths = ["output/output.rpx", "output.rpx", "../buildFiles/output.rpx"];
-		var foundRpx = false;
-		
-		for (path in rpxPaths) {
-			if (FileSystem.exists(path)) {
-				trace("SUCCESS: Found .rpx at: " + path);
-				File.saveBytes('$wupDir/code/Deltarune.rpx', File.getBytes(path));
-				foundRpx = true;
-				break;
-			}
-		}
-		
-		if (!foundRpx) {
-			trace("ERROR: output.rpx not found! Checked: " + rpxPaths.join(", "));
-			if (FileSystem.exists("output")) {
-				trace("DEBUG - Contents of 'output/' directory: " + FileSystem.readDirectory("output").join(", "));
-			} else {
-				trace("DEBUG - 'output/' directory does not exist!");
-			}
-			return false;
-		}
-		
-		if (FileSystem.exists("assets")) {
-			recursiveCopyFiles("assets", '$wupDir/content/assets');
-		}
-		if (FileSystem.exists("romfs")) {
-			recursiveCopyFiles("romfs", '$wupDir/content');
-		}
-		
-		var metaXml = '<?xml version="1.0" encoding="utf-8"?>\n' +
-			'<menu type="complex" access="777">\n' +
-			'  <version type="unsignedInt" length="4">33</version>\n' +
-			'  <product_code type="string" length="16">WUP-N-HAXE</product_code>\n' +
-			'  <title_id type="hexBinary" length="8">$titleId</title_id>\n' +
-			'  <title_version type="hexBinary" length="2">0000</title_version>\n' +
-			'  <group_id type="hexBinary" length="4">00001000</group_id>\n' +
-			'  <region type="hexBinary" length="4">00000002</region>\n' +
-			'</menu>';
-		File.saveContent('$wupDir/meta/meta.xml', metaXml);
-		
-		if (FileSystem.exists("assets/icon.png")) {
-			execute('convert assets/icon.png -resize 128x128 $wupDir/meta/iconTex.tga');
-			execute('convert assets/icon.png -resize 854x480 $wupDir/meta/bootDrcTex.tga');
-			execute('convert assets/icon.png -resize 1280x720 $wupDir/meta/bootTvTex.tga');
-		}
-		
-		if (FileSystem.exists("resources/wiiu/app.xml")) {
-			File.saveContent('$wupDir/code/app.xml', File.getContent("resources/wiiu/app.xml").replace("TITLE_ID", titleId));
-			File.saveContent('$wupDir/code/cos.xml', File.getContent("resources/wiiu/cos.xml").replace("TITLE_ID", titleId));
-		}
-		
-		var commonKey = Sys.getEnv("WIIU_COMMON_KEY");
-		
-		var cmd = 'java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in "$wupDir" -out "installable_build/$titleId"';
-		
-		if (commonKey != null && commonKey.trim() != "") {
-			cmd += ' -encryptKeyWith "$commonKey"';
-			trace("Using provided WIIU_COMMON_KEY for encryption.");
-		} else {
-			trace("Warning: WIIU_COMMON_KEY not set or empty. Building unencrypted WUP (perfectly fine for homebrew/testing).");
-		}
-
-		var success = execute(cmd);
-		if (success) {
-			trace("WUP package built successfully at installable_build/$titleId !");
-			return true;
-		} else {
-			trace("ERROR: NUSPacker failed to build the WUP package.");
-			return false;
-		}
+	    var wupDir = "wup_build";
+	    makeDirs('$wupDir/code');
+	    makeDirs('$wupDir/meta');
+	    makeDirs('$wupDir/content');
+	    
+	    var rpxPaths = ["output/output.rpx", "output.rpx", "../buildFiles/output.rpx"];
+	    var foundRpx = false;
+	    
+	    for (path in rpxPaths) {
+	        if (FileSystem.exists(path)) {
+	            trace("SUCCESS: Found .rpx at: " + path);
+	            File.saveBytes('$wupDir/code/Deltarune.rpx', File.getBytes(path));
+	            foundRpx = true;
+	            break;
+	        }
+	    }
+	    
+	    if (!foundRpx) {
+	        trace("ERROR: output.rpx not found! Checked: " + rpxPaths.join(", "));
+	        if (FileSystem.exists("output")) {
+	            trace("DEBUG - Contents of 'output/' directory: " + FileSystem.readDirectory("output").join(", "));
+	        } else {
+	            trace("DEBUG - 'output/' directory does not exist!");
+	        }
+	        return false;
+	    }
+	    
+	    if (FileSystem.exists("assets")) {
+	        recursiveCopyFiles("assets", '$wupDir/content/assets');
+	    }
+	    if (FileSystem.exists("romfs")) {
+	        recursiveCopyFiles("romfs", '$wupDir/content');
+	    }
+	    
+	    var metaXml = '<?xml version="1.0" encoding="utf-8"?>\n' +
+	        '<menu type="complex" access="777">\n' +
+	        '  <version type="unsignedInt" length="4">33</version>\n' +
+	        '  <product_code type="string" length="16">WUP-N-HAXE</product_code>\n' +
+	        '  <title_id type="hexBinary" length="8">$titleId</title_id>\n' +
+	        '  <title_version type="hexBinary" length="2">0000</title_version>\n' +
+	        '  <group_id type="hexBinary" length="4">00001000</group_id>\n' +
+	        '  <region type="hexBinary" length="4">00000002</region>\n' +
+	        '</menu>';
+	    File.saveContent('$wupDir/meta/meta.xml', metaXml);
+	    
+	    if (FileSystem.exists("assets/icon.png")) {
+	        execute('convert assets/icon.png -resize 128x128 $wupDir/meta/iconTex.tga');
+	        execute('convert assets/icon.png -resize 854x480 $wupDir/meta/bootDrcTex.tga');
+	        execute('convert assets/icon.png -resize 1280x720 $wupDir/meta/bootTvTex.tga');
+	    }
+	    
+	    var appXml = '<?xml version="1.0" encoding="utf-8"?>\n' +
+	        '<app version="1">\n' +
+	        '  <title_id type="hexBinary" length="8">$titleId</title_id>\n' +
+	        '  <title_version type="hexBinary" length="2">0000</title_version>\n' +
+	        '  <title_type type="hexBinary" length="4">0000000E</title_type>\n' +
+	        '  <group_id type="hexBinary" length="4">00001000</group_id>\n' +
+	        '  <os_version type="hexBinary" length="4">00000000</os_version>\n' +
+	        '  <app_type type="string" length="16">DLC</app_type>\n' +
+	        '  <cmdFlags type="hexBinary" length="4">00000000</cmdFlags>\n' +
+	        '  <required_system_version type="hexBinary" length="8">0000000000000000</required_system_version>\n' +
+	        '  <remaster_version type="hexBinary" length="4">00000000</remaster_version>\n' +
+	        '  <fw_version type="hexBinary" length="4">00000000</fw_version>\n' +
+	        '</app>';
+	    File.saveContent('$wupDir/code/app.xml', appXml);
+	    
+	    var cosXml = '<?xml version="1.0" encoding="utf-8"?>\n' +
+	        '<app version="1">\n' +
+	        '  <title_id type="hexBinary" length="8">$titleId</title_id>\n' +
+	        '  <title_version type="hexBinary" length="2">0000</title_version>\n' +
+	        '  <group_id type="hexBinary" length="4">00001000</group_id>\n' +
+	        '  <os_version type="hexBinary" length="4">00000000</os_version>\n' +
+	        '  <app_type type="string" length="16">DLC</app_type>\n' +
+	        '  <cmdFlags type="hexBinary" length="4">00000000</cmdFlags>\n' +
+	        '  <required_system_version type="hexBinary" length="8">0000000000000000</required_system_version>\n' +
+	        '  <remaster_version type="hexBinary" length="4">00000000</remaster_version>\n' +
+	        '  <fw_version type="hexBinary" length="4">00000000</fw_version>\n' +
+	        '</app>';
+	    File.saveContent('$wupDir/code/cos.xml', cosXml);
+	    
+	    var commonKey = Sys.getEnv("WIIU_COMMON_KEY");
+	    
+	    var cmd = 'java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in "$wupDir" -out "installable_build/$titleId"';
+	    
+	    if (commonKey != null && commonKey.trim() != "") {
+	        cmd += ' -encryptKeyWith "$commonKey"';
+	        trace("Using provided WIIU_COMMON_KEY for encryption.");
+	    } else {
+	        trace("Warning: WIIU_COMMON_KEY not set or empty. Building unencrypted WUP (perfectly fine for homebrew/testing).");
+	    }
+	
+	    var success = execute(cmd);
+	    if (success) {
+	        trace("WUP package built successfully at installable_build/$titleId !");
+	        return true;
+	    } else {
+	        trace("ERROR: NUSPacker failed to build the WUP package.");
+	        return false;
+	    }
 	}
 
 	static function main() {
