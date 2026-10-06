@@ -185,7 +185,7 @@ class Haxe3DS_Tool {
 			'  <install_flag type="hexBinary" length="4">00000000</install_flag>\n' +
 			'  <closing_msg type="unsignedInt" length="4">0</closing_msg>\n' +
 			'  <title_version type="unsignedInt" length="4">0</title_version>\n' +
-			'  <title_id type="hexBinary" length="8">$titleId</title_id>\n' +
+			'  <title_id type="hexBinary" length="8">' + titleId + '</title_id>\n' +
 			'  <group_id type="hexBinary" length="4">00001000</group_id>\n' +
 			'  <boss_id type="hexBinary" length="8">0000000000000000</boss_id>\n' +
 			'  <os_version type="hexBinary" length="8">000500101000400A</os_version>\n' +
@@ -239,42 +239,42 @@ class Haxe3DS_Tool {
 			'  <reserved_flag5 type="hexBinary" length="4">00000000</reserved_flag5>\n' +
 			'  <reserved_flag6 type="hexBinary" length="4">00000003</reserved_flag6>\n' +
 			'  <reserved_flag7 type="hexBinary" length="4">00000000</reserved_flag7>\n' +
-			'  <longname_ja type="string" length="512">${project.metadata.title}</longname_ja>\n' +
-			'  <longname_en type="string" length="512">${project.metadata.title}</longname_en>\n' +
-			'  <longname_fr type="string" length="512">${project.metadata.title}</longname_fr>\n' +
-			'  <longname_de type="string" length="512">${project.metadata.title}</longname_de>\n' +
-			'  <longname_it type="string" length="512">${project.metadata.title}</longname_it>\n' +
-			'  <longname_es type="string" length="512">${project.metadata.title}</longname_es>\n' +
-			'  <longname_zhs type="string" length="512">${project.metadata.title}</longname_zhs>\n' +
-			'  <longname_ko type="string" length="512">${project.metadata.title}</longname_ko>\n' +
-			'  <longname_nl type="string" length="512">${project.metadata.title}</longname_nl>\n' +
-			'  <longname_pt type="string" length="512">${project.metadata.title}</longname_pt>\n' +
-			'  <longname_ru type="string" length="512">${project.metadata.title}</longname_ru>\n' +
-			'  <longname_zht type="string" length="512">${project.metadata.title}</longname_zht>\n' +
-			'  <shortname_ja type="string" length="256">${project.metadata.title}</shortname_ja>\n' +
-			'  <shortname_en type="string" length="256">${project.metadata.title}</shortname_en>\n' +
-			'  <shortname_fr type="string" length="256">${project.metadata.title}</shortname_fr>\n' +
-			'  <shortname_de type="string" length="256">${project.metadata.title}</shortname_de>\n' +
-			'  <shortname_it type="string" length="256">${project.metadata.title}</shortname_it>\n' +
-			'  <shortname_es type="string" length="256">${project.metadata.title}</shortname_es>\n' +
-			'  <shortname_zhs type="string" length="256">${project.metadata.title}</shortname_zhs>\n' +
-			'  <shortname_ko type="string" length="256">${project.metadata.title}</shortname_ko>\n' +
-			'  <shortname_nl type="string" length="256">${project.metadata.title}</shortname_nl>\n' +
-			'  <shortname_pt type="string" length="256">${project.metadata.title}</shortname_pt>\n' +
-			'  <shortname_ru type="string" length="256">${project.metadata.title}</shortname_ru>\n' +
-			'  <shortname_zht type="string" length="256">${project.metadata.title}</shortname_zht>\n' +
-			'  <publisher_ja type="string" length="256">${project.metadata.author}</publisher_ja>\n' +
-			'  <publisher_en type="string" length="256">${project.metadata.author}</publisher_en>\n' +
-			'  <publisher_fr type="string" length="256">${project.metadata.author}</publisher_fr>\n' +
-			'  <publisher_de type="string" length="256">${project.metadata.author}</publisher_de>\n' +
-			'  <publisher_it type="string" length="256">${project.metadata.author}</publisher_it>\n' +
-			'  <publisher_es type="string" length="256">${project.metadata.author}</publisher_es>\n' +
-			'  <publisher_zhs type="string" length="256">${project.metadata.author}</publisher_zhs>\n' +
-			'  <publisher_ko type="string" length="256">${project.metadata.author}</publisher_ko>\n' +
-			'  <publisher_nl type="string" length="256">${project.metadata.author}</publisher_nl>\n' +
-			'  <publisher_pt type="string" length="256">${project.metadata.author}</publisher_pt>\n' +
-			'  <publisher_ru type="string" length="256">${project.metadata.author}</publisher_ru>\n' +
-			'  <publisher_zht type="string" length="256">${project.metadata.author}</publisher_zht>\n' +
+			'  <longname_ja type="string" length="512">' + project.metadata.title + '</longname_ja>\n' +
+			'  <longname_en type="string" length="512">' + project.metadata.title + '</longname_en>\n' +
+			'  <longname_fr type="string" length="512">' + project.metadata.title + '</longname_fr>\n' +
+			'  <longname_de type="string" length="512">' + project.metadata.title + '</longname_de>\n' +
+			'  <longname_it type="string" length="512">' + project.metadata.title + '</longname_it>\n' +
+			'  <longname_es type="string" length="512">' + project.metadata.title + '</longname_es>\n' +
+			'  <longname_zhs type="string" length="512">' + project.metadata.title + '</longname_zhs>\n' +
+			'  <longname_ko type="string" length="512">' + project.metadata.title + '</longname_ko>\n' +
+			'  <longname_nl type="string" length="512">' + project.metadata.title + '</longname_nl>\n' +
+			'  <longname_pt type="string" length="512">' + project.metadata.title + '</longname_pt>\n' +
+			'  <longname_ru type="string" length="512">' + project.metadata.title + '</longname_ru>\n' +
+			'  <longname_zht type="string" length="512">' + project.metadata.title + '</longname_zht>\n' +
+			'  <shortname_ja type="string" length="256">' + project.metadata.title + '</shortname_ja>\n' +
+			'  <shortname_en type="string" length="256">' + project.metadata.title + '</shortname_en>\n' +
+			'  <shortname_fr type="string" length="256">' + project.metadata.title + '</shortname_fr>\n' +
+			'  <shortname_de type="string" length="256">' + project.metadata.title + '</shortname_de>\n' +
+			'  <shortname_it type="string" length="256">' + project.metadata.title + '</shortname_it>\n' +
+			'  <shortname_es type="string" length="256">' + project.metadata.title + '</shortname_es>\n' +
+			'  <shortname_zhs type="string" length="256">' + project.metadata.title + '</shortname_zhs>\n' +
+			'  <shortname_ko type="string" length="256">' + project.metadata.title + '</shortname_ko>\n' +
+			'  <shortname_nl type="string" length="256">' + project.metadata.title + '</shortname_nl>\n' +
+			'  <shortname_pt type="string" length="256">' + project.metadata.title + '</shortname_pt>\n' +
+			'  <shortname_ru type="string" length="256">' + project.metadata.title + '</shortname_ru>\n' +
+			'  <shortname_zht type="string" length="256">' + project.metadata.title + '</shortname_zht>\n' +
+			'  <publisher_ja type="string" length="256">' + project.metadata.author + '</publisher_ja>\n' +
+			'  <publisher_en type="string" length="256">' + project.metadata.author + '</publisher_en>\n' +
+			'  <publisher_fr type="string" length="256">' + project.metadata.author + '</publisher_fr>\n' +
+			'  <publisher_de type="string" length="256">' + project.metadata.author + '</publisher_de>\n' +
+			'  <publisher_it type="string" length="256">' + project.metadata.author + '</publisher_it>\n' +
+			'  <publisher_es type="string" length="256">' + project.metadata.author + '</publisher_es>\n' +
+			'  <publisher_zhs type="string" length="256">' + project.metadata.author + '</publisher_zhs>\n' +
+			'  <publisher_ko type="string" length="256">' + project.metadata.author + '</publisher_ko>\n' +
+			'  <publisher_nl type="string" length="256">' + project.metadata.author + '</publisher_nl>\n' +
+			'  <publisher_pt type="string" length="256">' + project.metadata.author + '</publisher_pt>\n' +
+			'  <publisher_ru type="string" length="256">' + project.metadata.author + '</publisher_ru>\n' +
+			'  <publisher_zht type="string" length="256">' + project.metadata.author + '</publisher_zht>\n' +
 			'  <add_on_unique_id0 type="hexBinary" length="4">00000000</add_on_unique_id0>\n' +
 			'  <add_on_unique_id1 type="hexBinary" length="4">00000000</add_on_unique_id1>\n' +
 			'  <add_on_unique_id2 type="hexBinary" length="4">00000000</add_on_unique_id2>\n' +
@@ -320,7 +320,7 @@ class Haxe3DS_Tool {
 			'<app type="complex" access="777">\n' +
 			'  <version type="unsignedInt" length="4">16</version>\n' +
 			'  <os_version type="hexBinary" length="8">000500101000400A</os_version>\n' +
-			'  <title_id type="hexBinary" length="8">$titleId</title_id>\n' +
+			'  <title_id type="hexBinary" length="8">' + titleId + '</title_id>\n' +
 			'  <title_version type="hexBinary" length="2">00</title_version>\n' +
 			'  <sdk_version type="unsignedInt" length="4">21213</sdk_version>\n' +
 			'  <app_type type="hexBinary" length="4">80000000</app_type>\n' +
@@ -357,21 +357,24 @@ class Haxe3DS_Tool {
 		
 		var commonKey = Sys.getEnv("WIIU_COMMON_KEY");
 		
-		var outDir = "../installable_build/$titleId";
+		var outDir = "../installable_build/" + titleId;
 		makeDirs(outDir);
 		
-		var cmd = 'java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in "$wupDir" -out "$outDir"';
+		if (commonKey != null && commonKey.trim() != "") {
+			File.saveContent("encryptKeyWith", commonKey.trim());
+			trace("Created encryptKeyWith file with provided key.");
+		}
+		
+		var cmd = "java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in \"" + wupDir + "\" -out \"" + outDir + "\"";
+		
+		var success = execute(cmd);
 		
 		if (commonKey != null && commonKey.trim() != "") {
-			cmd += ' -encryptKeyWith "$commonKey"';
-			trace("Using provided WIIU_COMMON_KEY for encryption.");
-		} else {
-			trace("Warning: WIIU_COMMON_KEY not set or empty. Building unencrypted WUP (perfectly fine for homebrew/testing).");
+			deleteFileIfExist("encryptKeyWith");
 		}
 
-		var success = execute(cmd);
 		if (success) {
-			trace("WUP package built successfully at $outDir !");
+			trace("WUP package built successfully at " + outDir + " !");
 			return true;
 		} else {
 			trace("ERROR: NUSPacker failed to build the WUP package.");
