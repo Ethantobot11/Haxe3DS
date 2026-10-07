@@ -396,13 +396,13 @@ class Haxe3DS_Tool {
 		var outDir = "../installable_build/" + titleId;
 		makeDirs(outDir);
 		
-		var cmd = "java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in \"" + wupDir + "\" -out \"" + outDir + "\"";
+		var cmd = 'java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in "$wupDir" -out "$outDir"';
 		
 		if (commonKey != null) {
 			var cleanKey = commonKey.trim();
 			if (cleanKey.length == 32) {
-				cmd += ' -encryptKeyWith "' + cleanKey + '" -encryptionKey"' + cleanKey + '"';
-				trace("Successfully using WIIU_COMMON_KEY for encryption.");
+				cmd += ' -encryptKeyWith "' + cleanKey + '" -encryptionKey "' + cleanKey + '"';
+				trace("Successfully using WIIU_COMMON_KEY for both encryption and key encryption.");
 			} else {
 				trace("Warning: WIIU_COMMON_KEY is set but is " + cleanKey.length + " characters long (needs 32). Building unencrypted.");
 			}
