@@ -361,17 +361,15 @@ class Haxe3DS_Tool {
 		makeDirs(outDir);
 		
 		if (commonKey != null && commonKey.trim() != "") {
-			File.saveContent("encryptKeyWith", commonKey.trim());
-			trace("Created encryptKeyWith file with provided key.");
+			cmd += ' -encryptionKey "$commonKey"';
+			trace("Using provided WIIU_COMMON_KEY for encryption.");
+		} else {
+			trace("Warning: WIIU_COMMON_KEY not set or empty. Building unencrypted WUP.");
 		}
 		
 		var cmd = "java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in \"" + wupDir + "\" -out \"" + outDir + "\"";
 		
 		var success = execute(cmd);
-		
-		if (commonKey != null && commonKey.trim() != "") {
-			deleteFileIfExist("encryptKeyWith");
-		}
 
 		if (success) {
 			trace(" package built successfully at " + outDir + " !");
