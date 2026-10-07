@@ -401,7 +401,7 @@ class Haxe3DS_Tool {
 		if (commonKey != null) {
 			var cleanKey = commonKey.trim();
 			if (cleanKey.length == 32) {
-				cmd += ' -encryptKeyWith "' + cleanKey + '"';
+				cmd += ' -encryptKeyWith "' + cleanKey + ' -encryptionKey"' + cleanKey + '"';
 				trace("Successfully using WIIU_COMMON_KEY for encryption.");
 			} else {
 				trace("Warning: WIIU_COMMON_KEY is set but is " + cleanKey.length + " characters long (needs 32). Building unencrypted.");
