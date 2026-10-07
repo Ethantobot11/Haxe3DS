@@ -318,9 +318,21 @@ class Haxe3DS_Tool {
 		}
 		
 		trace("Generating meta images from assets/icon.png...");
-		execute('convert assets/icon.png -resize 128x128 $wupDir/meta/iconTex.tga');
-		execute('convert assets/icon.png -resize 854x480 $wupDir/meta/bootDrcTex.tga');
-		execute('convert assets/icon.png -resize 1280x720 $wupDir/meta/bootTvTex.tga');
+		if (FileSystem.exists("assets/icon.png")) {
+			execute('convert assets/icon.png -resize 128x128 $wupDir/meta/iconTex.tga');
+			execute('convert assets/banner.png -resize 854x480 $wupDir/meta/bootDrcTex.tga');
+			execute('convert assets/banner.png -resize 1280x720 $wupDir/meta/bootTvTex.tga');
+		}
+
+		var metaSource = "resources/wiiu/meta";
+		if (FileSystem.exists('$metaSource/bootLogoTex.tga')) {
+			File.saveBytes('$wupDir/meta/bootLogoTex.tga', File.getBytes('$metaSource/bootLogoTex.tga'));
+			trace("Added custom bootLogoTex.tga");
+		}
+		if (FileSystem.exists('$metaSource/bootSound.bfstm')) {
+			File.saveBytes('$wupDir/meta/bootSound.bfstm', File.getBytes('$metaSource/bootSound.bfstm'));
+			trace("Added custom bootSound.bfstm");
+		}
 		
 		if (!FileSystem.exists('$wupDir/meta/iconTex.tga') || 
 		    !FileSystem.exists('$wupDir/meta/bootDrcTex.tga') || 
