@@ -360,22 +360,27 @@ class Haxe3DS_Tool {
 		var outDir = "../installable_build/" + titleId;
 		makeDirs(outDir);
 		
-		if (commonKey != null && commonKey.trim() != "") {
-			cmd += ' -encryptionKey "$commonKey"';
-			trace("Using provided WIIU_COMMON_KEY for encryption.");
-		} else {
-			trace("Warning: WIIU_COMMON_KEY not set or empty. Building unencrypted WUP.");
-		}
-		
 		var cmd = "java -jar /opt/devkitpro/tools/bin/NUSPacker.jar -in \"" + wupDir + "\" -out \"" + outDir + "\"";
 		
+		if (commonKey != null) {
+			var cleanKey = commonKey.trim();
+			if (cleanKey.length == 32) {
+				cmd += ' -encryptKeyWith "' + cleanKey + '"';
+				trace("Successfully using WIIU_COMMON_KEY for encryption.");
+			} else {
+				trace("Warning: WIIU_COMMON_KEY is set but is " + cleanKey.length + " characters long (needs 32). Building unencrypted.");
+			}
+		} else {
+			trace("Warning: WIIU_COMMON_KEY not set. Building unencrypted WUP.");
+		}
+
 		var success = execute(cmd);
 
 		if (success) {
-			trace(" package built successfully at " + outDir + " !");
+			trace("WUP package built successfully at " + outDir + " !");
 			return true;
 		} else {
-			trace("ERROR: NUSPacker failed to build the  package.");
+			trace("ERROR: NUSPacker failed to build the WUP package.");
 			return false;
 		}
 	}
