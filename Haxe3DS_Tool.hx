@@ -161,11 +161,15 @@ class Haxe3DS_Tool {
 			return false;
 		}
 		
-		if (FileSystem.exists("assets")) {
-			recursiveCopyFiles("assets", '$wupDir/content/assets');
+		var rootAssets = cwd + "/assets";
+		var rootRomfs = cwd + "/assets/romfs";
+		var rootMeta = cwd + "/resources/wiiu/meta";
+		
+		if (FileSystem.exists(rootAssets)) {
+			recursiveCopyFiles(rootAssets, '$wupDir/content/assets');
 		}
-		if (FileSystem.exists("romfs")) {
-			recursiveCopyFiles("romfs", '$wupDir/content');
+		if (FileSystem.exists(rootRomfs)) {
+			recursiveCopyFiles(rootRomfs, '$wupDir/content');
 		}
 		
 		var metaXml = '<?xml version="1.0" encoding="utf-8"?>\n' +
@@ -310,35 +314,39 @@ class Haxe3DS_Tool {
 			'</menu>';
 		File.saveContent('$wupDir/meta/meta.xml', metaXml);
 		
-		if (!FileSystem.exists("assets/icon.png")) {
-			trace("ERROR: assets/icon.png is missing!");
+		if (!FileSystem.exists('$rootAssets/icon.png')) {
+			trace("ERROR: " + rootAssets + "/icon.png is missing!");
 			trace("The Wii U requires this file to generate the system menu icons.");
-			trace("Please add an 'icon.png' to your 'assets/' folder and rebuild.");
+			trace("Please add an 'icon.png' to your root 'assets/' folder and rebuild.");
 			return false;
 		}
 		
-		trace("Generating meta images from assets/icon.png...");
-		if (FileSystem.exists("assets/icon.png")) {
-			execute('convert assets/icon.png -resize 128x128 $wupDir/meta/iconTex.tga');
-			execute('convert assets/banner.png -resize 854x480 $wupDir/meta/bootDrcTex.tga');
-			execute('convert assets/banner.png -resize 1280x720 $wupDir/meta/bootTvTex.tga');
+		trace("Generating meta images from " + rootAssets + "/icon.png...");
+		execute('convert "' + rootAssets + '/icon.png" -resize 128x128 "' + wupDir + '/meta/iconTex.tga"');
+		
+		if (FileSystem.exists('$rootAssets/banner.png')) {
+			execute('convert "' + rootAssets + '/banner.png" -resize 854x480 "' + wupDir + '/meta/bootDrcTex.tga"');
+			execute('convert "' + rootAssets + '/banner.png" -resize 1280x720 "' + wupDir + '/meta/bootTvTex.tga"');
+		} else {
+			trace("Warning: banner.png not found in assets/, using icon.png for boot screens.");
+			execute('convert "' + rootAssets + '/icon.png" -resize 854x480 "' + wupDir + '/meta/bootDrcTex.tga"');
+			execute('convert "' + rootAssets + '/icon.png" -resize 1280x720 "' + wupDir + '/meta/bootTvTex.tga"');
 		}
 
-		var metaSource = "resources/wiiu/meta";
-		if (FileSystem.exists('$metaSource/bootLogoTex.tga')) {
-			File.saveBytes('$wupDir/meta/bootLogoTex.tga', File.getBytes('$metaSource/bootLogoTex.tga'));
+		if (FileSystem.exists('$rootMeta/bootLogoTex.tga')) {
+			File.saveBytes('$wupDir/meta/bootLogoTex.tga', File.getBytes('$rootMeta/bootLogoTex.tga'));
 			trace("Added custom bootLogoTex.tga");
 		}
-		if (FileSystem.exists('$metaSource/bootSound.bfstm')) {
-			File.saveBytes('$wupDir/meta/bootSound.bfstm', File.getBytes('$metaSource/bootSound.bfstm'));
-			trace("Added custom bootSound.bfstm");
+		if (FileSystem.exists('$rootMeta/bootSound.btsnd')) {
+			File.saveBytes('$wupDir/meta/bootSound.btsnd', File.getBytes('$rootMeta/bootSound.btsnd'));
+			trace("Added custom bootSound.btsnd");
 		}
 		
 		if (!FileSystem.exists('$wupDir/meta/iconTex.tga') || 
 		    !FileSystem.exists('$wupDir/meta/bootDrcTex.tga') || 
 		    !FileSystem.exists('$wupDir/meta/bootTvTex.tga')) {
 			trace("ERROR: Failed to generate .tga files!");
-			trace("Make sure 'imagemagick' is installed in the workflow and 'assets/icon.png' is a valid image.");
+			trace("Make sure 'imagemagick' is installed in the workflow and the source images are valid.");
 			return false;
 		}
 		
