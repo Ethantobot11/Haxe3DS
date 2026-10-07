@@ -310,11 +310,27 @@ class Haxe3DS_Tool {
 			'</menu>';
 		File.saveContent('$wupDir/meta/meta.xml', metaXml);
 		
-		if (FileSystem.exists("assets/icon.png")) {
-			execute('convert assets/icon.png -resize 128x128 $wupDir/meta/iconTex.tga');
-			execute('convert assets/icon.png -resize 854x480 $wupDir/meta/bootDrcTex.tga');
-			execute('convert assets/icon.png -resize 1280x720 $wupDir/meta/bootTvTex.tga');
+		if (!FileSystem.exists("assets/icon.png")) {
+			trace("ERROR: assets/icon.png is missing!");
+			trace("The Wii U requires this file to generate the system menu icons.");
+			trace("Please add an 'icon.png' to your 'assets/' folder and rebuild.");
+			return false;
 		}
+		
+		trace("Generating meta images from assets/icon.png...");
+		execute('convert assets/icon.png -resize 128x128 $wupDir/meta/iconTex.tga');
+		execute('convert assets/icon.png -resize 854x480 $wupDir/meta/bootDrcTex.tga');
+		execute('convert assets/icon.png -resize 1280x720 $wupDir/meta/bootTvTex.tga');
+		
+		if (!FileSystem.exists('$wupDir/meta/iconTex.tga') || 
+		    !FileSystem.exists('$wupDir/meta/bootDrcTex.tga') || 
+		    !FileSystem.exists('$wupDir/meta/bootTvTex.tga')) {
+			trace("ERROR: Failed to generate .tga files!");
+			trace("Make sure 'imagemagick' is installed in the workflow and 'assets/icon.png' is a valid image.");
+			return false;
+		}
+		
+		trace("Meta images generated successfully!");
 		
 		var appXml = '<?xml version="1.0" encoding="utf-8"?>\n' +
 			'<app type="complex" access="777">\n' +
