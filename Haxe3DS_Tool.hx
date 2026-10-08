@@ -138,6 +138,11 @@ class Haxe3DS_Tool {
 		makeDirs('$wupDir/code');
 		makeDirs('$wupDir/meta');
 		makeDirs('$wupDir/content');
+		// reminder for myself
+		// "0005000010100100" (EUR) -> "1001"
+		// "0005000010100000" (USA) -> "1000"
+		// "0005000010100200" (JPN) -> "1002"
+		var groupId = titleId.substring(10, 14);
 		
 		var rpxPaths = ["output/output.rpx", "output.rpx", "../buildFiles/output.rpx"];
 		var foundRpx = false;
@@ -190,7 +195,7 @@ class Haxe3DS_Tool {
 			'  <closing_msg type="unsignedInt" length="4">0</closing_msg>\n' +
 			'  <title_version type="unsignedInt" length="4">0</title_version>\n' +
 			'  <title_id type="hexBinary" length="8">' + titleId + '</title_id>\n' +
-			'  <group_id type="hexBinary" length="4">00001000</group_id>\n' +
+			'  <group_id type="hexBinary" length="4">' + groupId + '</group_id>\n' +
 			'  <boss_id type="hexBinary" length="8">0000000000000000</boss_id>\n' +
 			'  <os_version type="hexBinary" length="8">000500101000400A</os_version>\n' +
 			'  <app_size type="hexBinary" length="8">0000000000000000</app_size>\n' +
@@ -341,10 +346,9 @@ class Haxe3DS_Tool {
 			File.saveBytes('$wupDir/meta/bootSound.btsnd', File.getBytes('$rootMeta/bootSound.btsnd'));
 			trace("Added custom bootSound.btsnd");
 		}
-
 		if (FileSystem.exists('$rootMeta/bootMovie.h264')) {
-		    File.saveBytes('$wupDir/meta/bootMovie.h264', File.getBytes('$rootMeta/bootMovie.h264'));
-		    trace("Added custom bootMovie.h264");
+			File.saveBytes('$wupDir/meta/bootMovie.h264', File.getBytes('$rootMeta/bootMovie.h264'));
+			trace("Added custom bootMovie.h264");
 		}
 		
 		if (!FileSystem.exists('$wupDir/meta/iconTex.tga') || 
@@ -365,7 +369,7 @@ class Haxe3DS_Tool {
 			'  <title_version type="hexBinary" length="2">0000</title_version>\n' +
 			'  <sdk_version type="unsignedInt" length="4">21213</sdk_version>\n' +
 			'  <app_type type="hexBinary" length="4">80000000</app_type>\n' +
-			'  <group_id type="hexBinary" length="4">00001000</group_id>\n' +
+			'  <group_id type="hexBinary" length="4">' + groupId + '</group_id>\n' +
 			'  <os_mask type="hexBinary" length="32">0000000000000000000000000000000000000000000000000000000000000000</os_mask>\n' +
 			'  <common_id type="hexBinary" length="8">0000000000000000</common_id>\n' +
 			'</app>';
@@ -376,6 +380,7 @@ class Haxe3DS_Tool {
 			'  <version type="unsignedInt" length="4">20</version>\n' +
 			'  <cmdFlags type="unsignedInt" length="4">0</cmdFlags>\n' +
 			'  <argstr type="string" length="4096">Deltarune.rpx</argstr>\n' +
+			'  <group_id type="hexBinary" length="4">' + groupId + '</group_id>\n' +
 			'  <avail_size type="hexBinary" length="4">00000000</avail_size>\n' +
 			'  <codegen_size type="hexBinary" length="4">00000000</codegen_size>\n' +
 			'  <codegen_core type="hexBinary" length="4">00000001</codegen_core>\n' +
