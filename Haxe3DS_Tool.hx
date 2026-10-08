@@ -341,6 +341,11 @@ class Haxe3DS_Tool {
 			File.saveBytes('$wupDir/meta/bootSound.btsnd', File.getBytes('$rootMeta/bootSound.btsnd'));
 			trace("Added custom bootSound.btsnd");
 		}
+
+		if (FileSystem.exists('$rootMeta/bootMovie.h264')) {
+		    File.saveBytes('$wupDir/meta/bootMovie.h264', File.getBytes('$rootMeta/bootMovie.h264'));
+		    trace("Added custom bootMovie.h264");
+		}
 		
 		if (!FileSystem.exists('$wupDir/meta/iconTex.tga') || 
 		    !FileSystem.exists('$wupDir/meta/bootDrcTex.tga') || 
