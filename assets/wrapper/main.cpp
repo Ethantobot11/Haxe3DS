@@ -1,5 +1,6 @@
 #include <3ds.h>
 #include <hxcpp.h>
+#include <sys/stat.h>
 
 extern "C" void __hxcpp_main();
 extern "C" void __hxcpp_lib_main();
@@ -14,15 +15,23 @@ void __hxcpp_exit(int status) {
     std::exit(status);
 }
 
+void ensureDir(const char* path) {
+    mkdir(path, 0777);
+}
+
 void HAXE3DS_CTRUException(ERRF_ExceptionInfo* excep, CpuRegisters* regs) {
 	consoleInit(GFX_BOTTOM, NULL);
 	consoleClear();
 
-	FILE* f = fopen("sdmc:/haxe3ds_exception.log", "w");
+    ensureDir("sdmc:/Deltarune");
+    ensureDir("sdmc:/Deltarune/crash");
+
+	FILE* f = fopen("sdmc:/Deltarune/crash/cpp_hard_crash.log", "w");
 	if (!f) {
 		hx::Throw(String("[!!] Application Error [!!]\nPlease insert the SD card to save that error."));
 	}
 
+	fprintf(f, "=== C/C++ HARD CRASH LOG ===\n");
 	fprintf(f, "App Error [");
 	#define CASEPR(x, y) \
 		case x: { \
@@ -49,12 +58,12 @@ void HAXE3DS_CTRUException(ERRF_ExceptionInfo* excep, CpuRegisters* regs) {
 	fprintf(f, "   PC: 0x%08lX    CPSR:   0x%08lX\n", regs->pc, regs->cpsr);
 	fprintf(f, "  FSR: 0x%08lX     FAR:   0x%08lX\n", excep->fsr, excep->far);
 	fprintf(f, "FPEXC: 0x%08lX    FPI1:   0x%08lX\n", excep->fpexc, excep->fpinst);
-	fprintf(f, " FPI2: 0x%08lX", excep->fpinst2);
+	fprintf(f, " FPI2: 0x%08lX\n", excep->fpinst2);
 
-	fprintf(f, "\n\nhaxelib run haxe3ds -e 0x%lX 0x%lX\nUse the command above to locate which line throws exception from.", regs->pc, regs->lr);
+	fprintf(f, "\n\nhaxelib run haxe3ds -e 0x%lX 0x%lX\nUse the command above to locate which line throws exception from.\n", regs->pc, regs->lr);
 	fclose(f);
 
-	hx::Throw(HX_CSTRING("[!!] Application Error [!!]\n\nThis is caused by an Exception from this Application and NOT a Throw! See the logs file at sdmc:/haxe3ds_exception.log"));
+	hx::Throw(HX_CSTRING("[!!] Application Error [!!]\n\nThis is caused by an Exception from this Application and NOT a Throw! See the logs file at sdmc:/Deltarune/crash/cpp_hard_crash.log"));
 }
 
 extern "C" EXPORT_EXTRA int main() {
@@ -75,6 +84,17 @@ extern "C" EXPORT_EXTRA int main() {
 		__boot_all();
 		__hxcpp_main();
 	} catch (Dynamic d) {
+        ensureDir("sdmc:/Deltarune");
+        ensureDir("sdmc:/Deltarune/crash");
+        
+        FILE* f = fopen("sdmc:/Deltarune/crash/unhandled_haxe_crash.log", "w");
+        if (f) {
+            fprintf(f, "=== UNHANDLED HAXE EXCEPTION (Reached C++) ===\n");
+            fprintf(f, "%s\n", String(d).c_str());
+            fprintf(f, "\nUse 'haxelib run haxe3ds -e' to debug.\n");
+            fclose(f);
+        }
+
 		consoleInit(GFX_TOP, NULL);
 		consoleClear();
 
