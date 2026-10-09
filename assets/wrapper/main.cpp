@@ -91,7 +91,8 @@ extern "C" EXPORT_EXTRA int main() {
         if (f) {
             fprintf(f, "=== UNHANDLED HAXE EXCEPTION (Reached C++) ===\n");
             fprintf(f, "%s\n", String(d).c_str());
-            fprintf(f, "\nUse 'haxelib run haxe3ds -e' to debug.\n");
+            //fprintf(f, "\nUse 'haxelib run haxe3ds -e' to debug.\n");
+			fprintf(f, "\n\nhaxelib run haxe3ds -e 0x%lX 0x%lX\nUse the command above to locate which line throws exception from.\n", regs->pc, regs->lr);
             fclose(f);
         }
 
